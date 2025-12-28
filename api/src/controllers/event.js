@@ -33,8 +33,9 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
     const { search, calendar_id, status, startAfter, startBefore, limit = 10, page = 1 } = req.body;
     let query = { user_id: req.user._id.toString() };
 
-    if (calendar_id) query.calendar_id = Array.isArray(calendar_id) ? { $in: calendar_id } : calendar_id;
-    if (status) query.status = Array.isArray(status) ? { $in: status } : status;
+    if (calendar_id && calendar_id.length > 0)
+      query.calendar_id = Array.isArray(calendar_id) ? { $in: calendar_id } : calendar_id;
+    if (status && status.length > 0) query.status = Array.isArray(status) ? { $in: status } : status;
 
     if (startAfter || startBefore) {
       query["start.dateTime"] = {};
@@ -46,6 +47,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
       query.$or = [{ summary: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }];
     }
 
+    console.log(query);
     const offset = (page - 1) * limit;
     const total = await EventModel.countDocuments(query);
     const data = await EventModel.find(query).sort({ "start.dateTime": -1 }).skip(offset).limit(limit);
