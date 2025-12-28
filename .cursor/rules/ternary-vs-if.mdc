@@ -1,0 +1,123 @@
+---
+alwaysApply: true
+---
+
+---
+
+description: Rules for using if statements, short-circuit (&&), and ternary operators.
+alwaysApply: true
+
+---
+
+# Conditional Logic and Rendering Rules
+
+## 1. General Principles
+
+- **Default:** Use `if` statements or Early Returns for logic.
+- **JSX Structure:** Use short-circuit (`&&`) for component toggling.
+- **Ternary:** Use ONLY for simple, inline value assignments (strings, numbers, booleans).
+
+## 2. Decision Matrix
+
+| Scenario                | Use Case                    | Implementation                         |
+| :---------------------- | :-------------------------- | :------------------------------------- |
+| **Component Switching** | Tab systems, Page routing   | `{tab === "Home" && <Home />}`         |
+| **Large Blocks**        | > 1 line of code / UI       | `if (!ready) return;` or `&&`          |
+| **Simple Props**        | CSS classes, labels, colors | `color={active ? "red" : "blue"}`      |
+| **Nested Logic**        | Multiple conditions         | `if` / `else if` (No nested ternaries) |
+
+## 3. Code Examples
+
+### ❌ NO GO (Unreadable Ternary)
+
+```javascript
+// Do not use ternaries for component switching or long blocks
+{
+  tabSelected === "Home" ? <HomeComponent /> : <ListUsers />;
+}
+
+{
+  loading ? (
+    <div className="flex-col">
+      <Spinner />
+      <p>Loading...</p>
+    </div>
+  ) : (
+    <MainContent data={data} />
+  );
+}
+```
+
+### ❌ NO GO (Unreadable)
+
+````javascript
+// DO NOT do this for large blocks or switching
+{loading ? (
+  <div className="wrapper">
+    {/* 10 lines of code */}
+    <Spinner />
+    <p>Please wait while we fetch your data...</p>
+  </div>
+) : (
+  <main>
+    {/* 50 lines of code */}
+    <Dashboard data={data} />
+    <Footer />
+  </main>
+)}
+
+### ✅ YES (Preferred)
+
+```javascript
+// Use simple && for each state to avoid ternary indentation
+{loading && (
+  <div className="wrapper">
+    {/* 10 lines of code */}
+    <Spinner />
+  </div>
+)}
+
+{!loading && (
+  <main>
+    {/* 50 lines of code */}
+    <Dashboard data={data} />
+  </main>
+)}
+```
+
+
+### ✅ YES (Clean Short-circuit & Early Return)
+
+```javascript
+// Use separate short-circuit for clarity
+{
+  tabSelected === "Home" && <HomeComponent />;
+}
+{
+  tabSelected === "ListUsers" && <ListUsers />;
+}
+
+// Use early returns for large conditional renders
+if (loading) return <Spinner />;
+
+return <MainContent data={data} />;
+````
+
+### ✅ YES (Valid Ternary)
+
+```javascript
+// Only for small, inline value swaps
+const bgColor = loading ? "bg-gray-500" : "bg-blue-500";
+
+<button className={active ? "opacity-100" : "opacity-50"}>
+  {isValid ? "Submit" : "Retry"}
+</button>;
+```
+
+## 4. Early Return Policy
+
+Avoid nesting logic inside if blocks. Handle edge cases first.
+
+Bad: if (ok) { /_ 50 lines of code _/ }
+
+Good: if (!ok) return; // 50 lines of code follows

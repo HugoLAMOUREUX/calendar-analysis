@@ -1,0 +1,16 @@
+---
+alwaysApply: true
+---
+
+We established a convention where every response returns a {data} object. This ensures that every API response follows a predictable structure, making it easier to handle responses and reducing the likelihood of unexpected issues.
+
+✅ How to Do it
+router.get("/:id", async (req, res) => {
+try {
+const data = await MissionObject.findOne({ \_id: req.params.id });
+return res.status(200).send({ ok: true, data });
+} catch (error) {
+capture(error);
+res.status(500).send({ ok: false, code: SERVER_ERROR, error });
+}
+});

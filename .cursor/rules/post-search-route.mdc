@@ -1,0 +1,41 @@
+---
+alwaysApply: true
+---
+
+2.1. The Post Search
+Here is the method we use to fetch lists. In most cases, we need to perform extensive filtering on these lists, and a classical GET request can become really messy due to the querying. Instead, we use a POST request for more flexible querying.
+
+✅ How to Do it
+router.post("/search", passport.authenticate("user", { session: false, failWithError: true }), async (req, res) => {
+try {
+let query = {};
+
+    const limit = req.body.limit || 10;
+    const skip = req.body.offset || 0;
+
+    if (req.body.search) {
+      query = {
+        $or: [
+          { name: { $regex: req.body.search, $options: "i" } },
+          { description: { $regex: req.body.search, $options: "i" } },
+        ],
+      };
+    }
+    if (req.body.user_id) query.user_id = req.body.user_id;
+    if (req.body.device_type) query.device_type = req.body.device_type;
+    if (req.body.status) query.status = req.body.status;
+
+
+    const total = await DummyObject.countDocuments(query);
+    const data = await DummyObject.find(query).sort({ created_at: -1 }).skip(skip).limit(limit);
+
+    return res.status(200).send({ ok: true, data, total });
+
+} catch (error) {
+console.log(error);
+return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
+}
+});
+
+❓ Why to not do this
+By using a POST request, we can send a complex object in the body of the request, which allows us to construct more flexible and powerful queries.

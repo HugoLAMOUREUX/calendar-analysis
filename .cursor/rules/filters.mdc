@@ -1,0 +1,18 @@
+---
+alwaysApply: true
+---
+
+1.2.1 Filters in the api vs in the app
+✖️ How to not do it:
+const {data, ok} = await api.get("/meeting");
+setMeetings(response.data.filter((e) => !e.isDeleted));
+❓ Why to not do this
+because it will fuck up your pagination
+You will never know how many items you have
+It will not scale
+✅ How to Do it
+const {data, ok} = await api.post("/meeting/search",{deleted:false });
+setMeetings(response.data);
+const query = {};
+query.isDeleted = false;
+const data = await MeetingModel.find(query).sort({ createdAt: -1 });

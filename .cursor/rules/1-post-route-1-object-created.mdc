@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+
+2.2. Respect 1 Post Route, 1 Object Created
+This helps us separating concerns and simplifying the API's behavior. This approach ensures that each endpoint has a single responsibility, making the API more predictable, easier to copy and easier to maintain.
+
+Example : if a single POST request is used to create multiple objects such as an announcement, a company, and more. This can quickly lead to a bloated and complex endpoint. Instead one route to create an announcement, another one to create a company and in the frontend we call the 2 routes one after the other.
+
+Adhering to the principle of "1 POST route, 1 object created" helps mitigate these issues by ensuring each route is responsible for a single task. This results in:
+
+Simpler and Cleaner Code: Each controller method remains focused on a single responsibility, making the code easier to read and maintain.
+Improved Debugging: With each route handling only one type of object, debugging becomes more straightforward.
+Better Modularity: Decoupled logic allows for easier modifications and enhancements in the future without affecting other parts of the code.

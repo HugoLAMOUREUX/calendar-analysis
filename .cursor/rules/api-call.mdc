@@ -1,0 +1,34 @@
+---
+alwaysApply: true
+---
+
+✖️ How to not do it:
+useEffect(() => {
+try {
+api.post("/event/search").then(({ data, ok }) => {
+if (!ok) return toast.error(data.message);
+setEvents(data);
+setTotal(data.total);
+setLoading(false);
+});
+} catch (e) {
+console.error(e);
+}
+}, []);
+✅ How to Do it
+const fetchEvents = async () => {
+try {
+const { data, ok, total } = await api.post("/event/search");
+if (!ok) return toast.error(data.message || "Something went wrong");
+setEvents(data);
+setTotal(total);
+} catch (e) {
+console.error(e);
+} finally {
+setLoading(false);
+}
+};
+
+useEffect(() => {
+fetchEvents();
+}, []);
