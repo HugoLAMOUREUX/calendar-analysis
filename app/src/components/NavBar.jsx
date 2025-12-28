@@ -1,14 +1,17 @@
 import React, { useEffect, useState, Fragment } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Menu, Transition } from "@headlessui/react"
-import { HiOutlineCalendar } from "react-icons/hi"
+import { HiOutlineCalendar, HiOutlineCollection } from "react-icons/hi"
 import { HiBars3, HiXMark, HiSparkles } from "react-icons/hi2"
 import { TbLogout, TbUser } from "react-icons/tb"
 
 import useStore from "@/services/store"
 import api from "@/services/api"
 
-const MENU = [{ title: "Calendars", to: "/calendars", logo: <HiOutlineCalendar className="h-6 w-6" /> }]
+const MENU = [
+  { title: "Calendars", to: "/calendars", logo: <HiOutlineCalendar className="h-6 w-6" /> },
+  { title: "Events", to: "/events", logo: <HiOutlineCollection className="h-6 w-6" /> }
+]
 
 const Navbar = () => {
   const location = useLocation()

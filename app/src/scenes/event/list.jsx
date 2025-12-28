@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { HiCalendar, HiArrowLeft, HiArrowPath } from "react-icons/hi2"
+import { useNavigate } from "react-router-dom"
+import { HiSquares2X2, HiSparkles } from "react-icons/hi2"
 import toast from "react-hot-toast"
 
 import api from "@/services/api"
@@ -9,15 +9,13 @@ import SearchBar from "@/components/SearchBar"
 import Pagination from "@/components/pagination"
 import MultiSelect from "@/components/MultiSelect"
 
-export default function View() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [calendar, setCalendar] = useState(null)
+export default function List() {
   const [events, setEvents] = useState([])
+  const [calendars, setCalendars] = useState([])
   const [loading, setLoading] = useState(true)
-  const [syncing, setSyncing] = useState(false)
-  const [filters, setFilters] = useState({ search: "", status: [], startAfter: "", startBefore: "", page: 1, limit: 25 })
+  const [filters, setFilters] = useState({ search: "", calendar_id: [], status: [], startAfter: "", startBefore: "", page: 1, limit: 10 })
   const [total, setTotal] = useState(0)
+  const navigate = useNavigate()
 
   const STATUS_OPTIONS = [
     { label: "Confirmed", value: "confirmed" },
@@ -25,23 +23,18 @@ export default function View() {
     { label: "Cancelled", value: "cancelled" }
   ]
 
-  const fetchCalendar = async () => {
+  const fetchCalendars = async () => {
     try {
-      const { ok, data } = await api.get(`/calendar/${id}`)
-      if (!ok) return toast.error("Calendar not found")
-      setCalendar(data)
+      const { ok, data } = await api.get("/calendar")
+      if (ok) setCalendars(data)
     } catch (e) {
       console.error(e)
-      toast.error("An error occurred while fetching calendar info")
     }
   }
 
   const fetchEvents = async () => {
     try {
-      const { ok, data, total } = await api.post("/event/search", {
-        ...filters,
-        calendar_id: id
-      })
+      const { ok, data, total } = await api.post("/event/search", filters)
       if (!ok) return toast.error("Failed to fetch events")
       setEvents(data)
       setTotal(total)
@@ -53,70 +46,46 @@ export default function View() {
     }
   }
 
-  const handleSync = async () => {
-    setSyncing(true)
-    try {
-      const { ok } = await api.post(`/event/${id}/sync`)
-      if (!ok) throw new Error("Sync failed")
-      toast.success("Events synced successfully!")
-      fetchEvents()
-    } catch (e) {
-      console.error(e)
-      toast.error("Failed to sync events")
-    } finally {
-      setSyncing(false)
-    }
-  }
+  useEffect(() => {
+    fetchCalendars()
+  }, [])
 
   useEffect(() => {
-    if (id) {
-      fetchCalendar()
-    }
-  }, [id])
+    fetchEvents()
+  }, [filters.search, filters.calendar_id, filters.status, filters.startAfter, filters.startBefore, filters.page])
 
-  useEffect(() => {
-    if (id) {
-      fetchEvents()
-    }
-  }, [id, filters.search, filters.status, filters.startAfter, filters.startBefore, filters.page])
-
-  if (loading && !calendar) return <Loader />
+  if (loading && !events.length && !calendars.length) return <Loader />
 
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-          <button onClick={() => navigate("/calendars")} className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
-            <HiArrowLeft size={16} />
-            Back to calendars
-          </button>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleSync}
-              disabled={syncing}
-              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all disabled:opacity-50"
-            >
-              <HiArrowPath className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Syncing..." : "Refresh"}
-            </button>
-            <div className="w-full md:w-64">
-              <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search events..." />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-lg bg-indigo-600 flex items-center justify-center">
+              <HiSparkles className="text-white h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Your Events</h1>
+              <p className="text-gray-600">Browse and filter all your calendar events</p>
             </div>
           </div>
-        </div>
-
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-12 w-12 rounded-lg flex items-center justify-center text-white" style={{ backgroundColor: calendar?.backgroundColor || "#4f46e5" }}>
-            <HiCalendar size={24} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{calendar?.summary || "Calendar Events"}</h1>
-            <p className="text-gray-600">{calendar?.description || "Events from the selected calendar"}</p>
+          <div className="w-full md:w-64">
+            <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search events..." />
           </div>
         </div>
 
         {/* Filters Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <div>
+            <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Calendars</label>
+            <MultiSelect
+              id="calendar-filter"
+              placeholder="All Calendars"
+              options={calendars.map(cal => ({ label: cal.summary, value: cal._id }))}
+              values={filters.calendar_id.map(id => ({ label: calendars.find(c => c._id === id)?.summary || "", value: id }))}
+              onSelectedChange={selected => setFilters(f => ({ ...f, calendar_id: selected.map(s => s.value), page: 1 }))}
+            />
+          </div>
           <div>
             <label className="block text-xs font-semibold text-gray-500 uppercase mb-1">Status</label>
             <MultiSelect
@@ -151,7 +120,7 @@ export default function View() {
           <div className="divide-y divide-gray-100">
             {events.length === 0 ? (
               <div className="p-12 text-center text-gray-500">
-                <HiCalendar size={48} className="mx-auto mb-4 opacity-10" />
+                <HiSquares2X2 size={48} className="mx-auto mb-4 opacity-10" />
                 <p>No events found.</p>
               </div>
             ) : (

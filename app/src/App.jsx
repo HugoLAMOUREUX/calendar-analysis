@@ -5,6 +5,7 @@ import * as Sentry from "@sentry/browser"
 
 import Auth from "@/scenes/auth"
 import Calendar from "@/scenes/calendar"
+import Event from "@/scenes/event"
 import Account from "@/scenes/account"
 import Terms from "@/scenes/legal-pages/terms"
 import Privacy from "@/scenes/legal-pages/privacy"
@@ -34,6 +35,7 @@ export default function App() {
         </Route>
         <Route element={<UserLayout />}>
           <Route path="/calendars/*" element={<Calendar />} />
+          <Route path="/events/*" element={<Event />} />
           <Route path="/account" element={<Account />} />
         </Route>
         <Route path="*" element={<Navigate to="/calendars" />} />

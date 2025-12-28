@@ -30,10 +30,18 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
 
 router.post("/search", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
-    const { search, calendar_id, limit = 10, page = 1 } = req.body;
+    const { search, calendar_id, status, startAfter, startBefore, limit = 10, page = 1 } = req.body;
     let query = { user_id: req.user._id.toString() };
 
-    if (calendar_id) query.calendar_id = calendar_id;
+    if (calendar_id) query.calendar_id = Array.isArray(calendar_id) ? { $in: calendar_id } : calendar_id;
+    if (status) query.status = Array.isArray(status) ? { $in: status } : status;
+
+    if (startAfter || startBefore) {
+      query["start.dateTime"] = {};
+      if (startAfter) query["start.dateTime"].$gte = new Date(startAfter);
+      if (startBefore) query["start.dateTime"].$lte = new Date(startBefore);
+    }
+
     if (search) {
       query.$or = [{ summary: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }];
     }

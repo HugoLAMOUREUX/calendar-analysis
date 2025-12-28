@@ -38,11 +38,10 @@ async function syncCalendars(user) {
       defaultReminders: item.defaultReminders,
       last_synced_at: new Date(),
     }));
-    await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
+    const insertedCalendars = await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
 
     // After adding calendars, sync events for each one
-    const newCalendars = await CalendarModel.find({ user_id: user._id });
-    for (const cal of newCalendars) {
+    for (const cal of insertedCalendars) {
       try {
         await syncCalendarEvents(user, cal._id);
       } catch (e) {
