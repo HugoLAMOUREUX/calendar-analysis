@@ -44,7 +44,14 @@ async function syncCalendars(user) {
       defaultReminders: item.defaultReminders,
       last_synced_at: new Date(),
     }));
-    await CalendarModel.insertMany(calendarsToCreate);
+    try {
+      await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
+    } catch (e) {
+      // Ignore duplicate key errors if the index still exists in MongoDB
+      if (e.code !== 11000) {
+        console.error("Error inserting calendars:", e.message);
+      }
+    }
   }
 
   // Update user last sync

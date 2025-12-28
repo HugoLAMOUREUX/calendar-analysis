@@ -8,7 +8,7 @@ const Schema = new mongoose.Schema(
     user_name: { type: String },
     user_avatar: { type: String },
 
-    google_id: { type: String, required: true, unique: true },
+    google_id: { type: String, required: true },
     etag: { type: String },
     summary: { type: String },
     description: { type: String },
