@@ -1,18 +1,14 @@
 import React, { useEffect, useState, Fragment } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Menu, Transition } from "@headlessui/react"
-import { AiOutlineHome } from "react-icons/ai"
-import { HiOutlineCollection } from "react-icons/hi"
+import { HiOutlineCalendar } from "react-icons/hi"
 import { HiBars3, HiXMark, HiSparkles } from "react-icons/hi2"
 import { TbLogout, TbUser } from "react-icons/tb"
 
 import useStore from "@/services/store"
 import api from "@/services/api"
 
-const MENU = [
-  { title: "Home", to: "/home", logo: <AiOutlineHome className="h-6 w-6" /> },
-  { title: "Dummy", to: "/dummy", logo: <HiOutlineCollection className="h-6 w-6" /> }
-]
+const MENU = [{ title: "Calendars", to: "/calendars", logo: <HiOutlineCalendar className="h-6 w-6" /> }]
 
 const Navbar = () => {
   const location = useLocation()
@@ -66,8 +62,8 @@ const Navbar = () => {
                     <HiSparkles className="text-indigo-600 h-6 w-6" />
                   </div>
                   <div>
-                    <h1 className="text-white font-bold text-lg">Boilerplate</h1>
-                    <p className="text-indigo-200 text-xs">Template App</p>
+                    <h1 className="text-white font-bold text-lg">Calendar Analysis</h1>
+                    <p className="text-indigo-200 text-xs">Analyze your time</p>
                   </div>
                 </>
               ) : (

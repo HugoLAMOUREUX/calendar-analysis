@@ -7,6 +7,7 @@ import { HiMail } from "react-icons/hi"
 
 import api from "@/services/api"
 import useStore from "@/services/store"
+import GoogleLoginButton from "./google-login-button"
 
 export default function Signup() {
   const location = useLocation()
@@ -55,6 +56,13 @@ export default function Signup() {
       <div className="bg-white rounded-2xl border border-indigo-100 shadow-xl p-6">
         <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">Create an account</h1>
         <p className="text-center text-gray-600 mb-6">Join us now</p>
+
+        <GoogleLoginButton />
+        <div className="flex items-center gap-4 my-6">
+          <div className="flex-1 h-px bg-gray-200" />
+          <span className="text-sm text-gray-400 font-medium">OR</span>
+          <div className="flex-1 h-px bg-gray-200" />
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name */}

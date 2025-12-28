@@ -78,6 +78,53 @@ router.post("/signup", async (req, res) => {
   }
 });
 
+router.get("/google-client-id", async (req, res) => {
+  return res.status(200).send({ ok: true, data: config.GOOGLE_OAUTH_CLIENT_ID });
+});
+
+router.post("/google-login", async (req, res) => {
+  try {
+    const { access_token } = req.body;
+
+    if (!access_token) return res.status(400).send({ ok: false, code: ERROR_CODES.INVALID_PARAMS });
+
+    // Verify token and get user info from Google directly from the backend
+    const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);
+    const userInfo = await response.json();
+
+    if (!userInfo || !userInfo.email) {
+      return res.status(401).send({ ok: false, code: ERROR_CODES.UNAUTHORIZED });
+    }
+
+    let user = await UserObject.findOne({ email: userInfo.email.toLowerCase() });
+
+    if (!user) {
+      user = await UserObject.create({
+        google_id: userInfo.sub,
+        email: userInfo.email.toLowerCase(),
+        name: userInfo.name,
+        avatar: userInfo.picture,
+        google_access_token: access_token,
+      });
+    } else {
+      user.set({
+        google_id: userInfo.sub,
+        google_access_token: access_token,
+        last_login_at: Date.now(),
+      });
+      await user.save();
+    }
+
+    const token = jwt.sign({ _id: user._id }, config.SECRET, { expiresIn: JWT_MAX_AGE });
+    res.cookie("jwt_user", token, cookieOptions());
+
+    return res.status(200).send({ ok: true, token, user });
+  } catch (error) {
+    capture(error);
+    return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
+  }
+});
+
 // Check if email exists
 router.post("/check-email", async (req, res) => {
   try {

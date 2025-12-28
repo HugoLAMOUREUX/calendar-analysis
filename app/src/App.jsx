@@ -4,9 +4,8 @@ import { Toaster } from "react-hot-toast"
 import * as Sentry from "@sentry/browser"
 
 import Auth from "@/scenes/auth"
-import Home from "@/scenes/home"
+import Calendar from "@/scenes/calendar"
 import Account from "@/scenes/account"
-import Dummy from "@/scenes/dummy"
 import Terms from "@/scenes/legal-pages/terms"
 import Privacy from "@/scenes/legal-pages/privacy"
 
@@ -34,11 +33,10 @@ export default function App() {
           <Route path="/auth/*" element={<Auth />} />
         </Route>
         <Route element={<UserLayout />}>
-          <Route path="/home" element={<Home />} />
+          <Route path="/calendars/*" element={<Calendar />} />
           <Route path="/account" element={<Account />} />
-          <Route path="/dummy/*" element={<Dummy />} />
         </Route>
-        <Route path="*" element={<Navigate to="/home" />} />
+        <Route path="*" element={<Navigate to="/calendars" />} />
       </Routes>
       <Toaster position="top-center" />
     </BrowserRouter>

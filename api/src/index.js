@@ -32,9 +32,10 @@ app.get("/", async (req, res) => {
 });
 
 app.use("/user", require("./controllers/user"));
+app.use("/calendar", require("./controllers/calendar"));
+app.use("/event", require("./controllers/event"));
 app.use("/admin", require("./controllers/admin"));
 app.use("/file", require("./controllers/file"));
-app.use("/dummy", require("./controllers/dummy_controller"));
 
 setupErrorHandler(app);
 require("./services/passport")(app);

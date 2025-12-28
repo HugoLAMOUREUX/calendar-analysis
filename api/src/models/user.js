@@ -18,6 +18,10 @@ const Schema = new mongoose.Schema(
     forgot_password_reset_expires: { type: Date },
 
     last_login_at: { type: Date, default: Date.now },
+
+    google_id: { type: String, unique: true, sparse: true },
+    google_access_token: { type: String },
+    google_refresh_token: { type: String },
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } },
 );
