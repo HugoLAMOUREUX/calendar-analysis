@@ -38,7 +38,12 @@ async function syncCalendars(user) {
       defaultReminders: item.defaultReminders,
       last_synced_at: new Date(),
     }));
-    const insertedCalendars = await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
+    let insertedCalendars = [];
+    try {
+      insertedCalendars = await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
+    } catch (e) {
+      console.error(`Failed to insert calendars:`, e.message);
+    }
 
     // After adding calendars, sync events for each one
     for (const cal of insertedCalendars) {
@@ -96,6 +101,10 @@ async function syncCalendarEvents(user, calendarId) {
         const name = parts[0]?.trim();
         const sub_name = parts.slice(1).join("-").trim() || undefined;
 
+        const start = new Date(item.start?.dateTime || item.start?.date);
+        const end = new Date(item.end?.dateTime || item.end?.date);
+        const duration = end.getTime() - start.getTime();
+
         return {
           user_id: user._id.toString(),
           user_name: user.name,
@@ -105,6 +114,7 @@ async function syncCalendarEvents(user, calendarId) {
           google_id: item.id,
           name,
           sub_name,
+          duration,
           kind: item.kind,
           etag: item.etag,
           status: item.status,

@@ -17,6 +17,7 @@ const Schema = new mongoose.Schema(
     google_id: { type: String, required: true },
     name: { type: String },
     sub_name: { type: String },
+    duration: { type: Number }, // Duration in milliseconds
     kind: { type: String, default: "calendar#event" },
     etag: { type: String },
     status: { type: String },
