@@ -16,7 +16,7 @@ async function syncCalendars(user) {
   const { data } = await calendar.calendarList.list();
 
   // Delete all existing calendars for this user
-  await CalendarModel.deleteMany({ user_id: user._id });
+  await CalendarModel.deleteMany({ user_id: user._id.toString() });
 
   // Bulk create new calendars
   if (data.items && data.items.length > 0) {
@@ -162,7 +162,7 @@ async function syncCalendarEvents(user, calendarId) {
       });
 
       // Delete all existing events for this specific calendar only AFTER we have the new data
-      await EventModel.deleteMany({ calendar_id: cal._id });
+      await EventModel.deleteMany({ calendar_id: cal._id.toString() });
 
       await EventModel.insertMany(eventsToCreate, { ordered: false });
     }
