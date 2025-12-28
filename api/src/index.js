@@ -31,6 +31,10 @@ app.get("/", async (req, res) => {
   });
 });
 
+app.get("/health", (req, res) => {
+  res.status(200).send({ ok: true });
+});
+
 app.use("/user", require("./controllers/user"));
 app.use("/calendar", require("./controllers/calendar"));
 app.use("/event", require("./controllers/event"));
