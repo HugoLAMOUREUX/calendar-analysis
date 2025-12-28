@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { HiCalendar, HiArrowLeft } from "react-icons/hi2"
+import { HiCalendar, HiArrowLeft, HiArrowPath } from "react-icons/hi2"
 import toast from "react-hot-toast"
 
 import api from "@/services/api"
@@ -14,6 +14,7 @@ export default function View() {
   const [calendar, setCalendar] = useState(null)
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
   const [filters, setFilters] = useState({ search: "", page: 1, limit: 25 })
   const [total, setTotal] = useState(0)
 
@@ -45,6 +46,21 @@ export default function View() {
     }
   }
 
+  const handleSync = async () => {
+    setSyncing(true)
+    try {
+      const { ok } = await api.post(`/event/${id}/sync`)
+      if (!ok) throw new Error("Sync failed")
+      toast.success("Events synced successfully!")
+      fetchEvents()
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to sync events")
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   useEffect(() => {
     if (id) {
       fetchCalendar()
@@ -67,8 +83,18 @@ export default function View() {
             <HiArrowLeft size={16} />
             Back to calendars
           </button>
-          <div className="w-full md:w-64">
-            <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search events..." />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all disabled:opacity-50"
+            >
+              <HiArrowPath className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? "Syncing..." : "Refresh"}
+            </button>
+            <div className="w-full md:w-64">
+              <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search events..." />
+            </div>
           </div>
         </div>
 

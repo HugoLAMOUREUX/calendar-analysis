@@ -6,12 +6,6 @@ const config = require("../config");
 async function syncCalendars(user) {
   if (!user.google_access_token) return;
 
-  // Check if last sync was less than 1 hour ago
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  if (user.last_calendar_sync_at && user.last_calendar_sync_at > oneHourAgo) {
-    return;
-  }
-
   const oauth2Client = new google.auth.OAuth2(config.GOOGLE_OAUTH_CLIENT_ID, config.GOOGLE_OAUTH_CLIENT_SECRET);
   oauth2Client.setCredentials({
     access_token: user.google_access_token,
@@ -44,12 +38,15 @@ async function syncCalendars(user) {
       defaultReminders: item.defaultReminders,
       last_synced_at: new Date(),
     }));
-    try {
-      await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
-    } catch (e) {
-      // Ignore duplicate key errors if the index still exists in MongoDB
-      if (e.code !== 11000) {
-        console.error("Error inserting calendars:", e.message);
+    await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
+
+    // After adding calendars, sync events for each one
+    const newCalendars = await CalendarModel.find({ user_id: user._id });
+    for (const cal of newCalendars) {
+      try {
+        await syncCalendarEvents(user, cal._id);
+      } catch (e) {
+        console.error(`Failed to sync events for calendar ${cal.summary} during initial sync:`, e.message);
       }
     }
   }
@@ -59,14 +56,8 @@ async function syncCalendars(user) {
   await user.save();
 }
 
-async function syncEvents(user) {
+async function syncCalendarEvents(user, calendarId) {
   if (!user.google_access_token) return;
-
-  // Check if last sync was less than 1 hour ago
-  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-  if (user.last_event_sync_at && user.last_event_sync_at > oneHourAgo) {
-    return;
-  }
 
   const oauth2Client = new google.auth.OAuth2(config.GOOGLE_OAUTH_CLIENT_ID, config.GOOGLE_OAUTH_CLIENT_SECRET);
   oauth2Client.setCredentials({
@@ -76,30 +67,45 @@ async function syncEvents(user) {
 
   const calendarApi = google.calendar({ version: "v3", auth: oauth2Client });
 
-  // Get all user calendars first to fetch events for each
-  const calendars = await CalendarModel.find({ user_id: user._id });
+  const cal = await CalendarModel.findById(calendarId);
+  if (!cal) return;
 
-  // Delete all existing events for this user
-  await EventModel.deleteMany({ user_id: user._id });
+  try {
+    let allEvents = [];
+    let pageToken = "";
 
-  for (const cal of calendars) {
-    try {
+    while (pageToken !== undefined) {
       const { data } = await calendarApi.events.list({
         calendarId: cal.google_id,
-        timeMin: new Date(Date.now() - 10 * 365 * 24 * 60 * 60 * 1000).toISOString(), // 60 days ago
-        timeMax: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days future
+        timeMin: new Date(Date.now() - 100 * 365 * 24 * 60 * 60 * 1000).toISOString(),
+        timeMax: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000).toISOString(),
         singleEvents: true,
         orderBy: "startTime",
+        maxResults: 2500,
+        pageToken: pageToken || undefined,
       });
 
       if (data.items && data.items.length > 0) {
-        const eventsToCreate = data.items.map((item) => ({
+        allEvents = allEvents.concat(data.items);
+      }
+      pageToken = data.nextPageToken;
+    }
+
+    if (allEvents.length > 0) {
+      const eventsToCreate = allEvents.map((item) => {
+        const parts = (item.summary || "").split("-");
+        const name = parts[0]?.trim();
+        const sub_name = parts.slice(1).join("-").trim() || undefined;
+
+        return {
           user_id: user._id.toString(),
           user_name: user.name,
           user_avatar: user.avatar,
           calendar_id: cal._id.toString(),
           google_calendar_id: cal.google_id,
           google_id: item.id,
+          name,
+          sub_name,
           kind: item.kind,
           etag: item.etag,
           status: item.status,
@@ -143,22 +149,26 @@ async function syncEvents(user) {
           birthdayProperties: item.birthdayProperties,
           eventType: item.eventType,
           last_synced_at: new Date(),
-        }));
-        await EventModel.insertMany(eventsToCreate, { ordered: false });
-      }
-    } catch (e) {
-      if (e.code !== 11000) {
-        console.error(`Error fetching events for calendar ${cal.google_id}:`, e.message);
-      }
+        };
+      });
+
+      // Delete all existing events for this specific calendar only AFTER we have the new data
+      await EventModel.deleteMany({ calendar_id: cal._id });
+
+      await EventModel.insertMany(eventsToCreate, { ordered: false });
+    }
+  } catch (e) {
+    if (e.code !== 11000) {
+      console.error(`Error fetching events for calendar ${cal.google_id}:`, e.message);
     }
   }
 
-  // Update user last sync
-  user.last_event_sync_at = new Date();
-  await user.save();
+  // Update calendar last sync
+  cal.last_synced_at = new Date();
+  await cal.save();
 }
 
 module.exports = {
   syncCalendars,
-  syncEvents,
+  syncCalendarEvents,
 };

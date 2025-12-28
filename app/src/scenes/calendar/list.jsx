@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { HiCalendar, HiSparkles } from "react-icons/hi2"
+import { HiCalendar, HiSparkles, HiArrowPath } from "react-icons/hi2"
 import toast from "react-hot-toast"
 
 import api from "@/services/api"
@@ -11,6 +11,7 @@ import Pagination from "@/components/pagination"
 export default function List() {
   const [calendars, setCalendars] = useState([])
   const [loading, setLoading] = useState(true)
+  const [syncing, setSyncing] = useState(false)
   const [filters, setFilters] = useState({ search: "", page: 1, limit: 10 })
   const [total, setTotal] = useState(0)
   const navigate = useNavigate()
@@ -34,6 +35,21 @@ export default function List() {
     }
   }
 
+  const handleSync = async () => {
+    setSyncing(true)
+    try {
+      const { ok } = await api.post("/calendar/sync")
+      if (!ok) throw new Error("Sync failed")
+      toast.success("Calendars synced successfully!")
+      fetchCalendars()
+    } catch (e) {
+      console.error(e)
+      toast.error("Failed to sync calendars")
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   useEffect(() => {
     fetchCalendars()
   }, [filters.search, filters.page])
@@ -53,8 +69,18 @@ export default function List() {
               <p className="text-gray-600">Select a calendar to analyze its events</p>
             </div>
           </div>
-          <div className="w-full md:w-64">
-            <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search calendars..." />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all disabled:opacity-50"
+            >
+              <HiArrowPath className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+              {syncing ? "Syncing..." : "Refresh"}
+            </button>
+            <div className="w-full md:w-64">
+              <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search calendars..." />
+            </div>
           </div>
         </div>
 

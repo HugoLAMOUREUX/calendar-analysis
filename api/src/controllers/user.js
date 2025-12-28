@@ -13,6 +13,7 @@ const ERROR_CODES = require("../utils/errorCodes");
 
 const brevo = require("../services/brevo");
 const { capture } = require("../services/sentry");
+const { syncCalendars } = require("../services/google");
 
 // 1 year
 const COOKIE_MAX_AGE = 31557600000;
@@ -51,7 +52,10 @@ router.post("/signin", async (req, res) => {
     const token = jwt.sign({ _id: user.id }, config.SECRET, { expiresIn: JWT_MAX_AGE });
     res.cookie("jwt_user", token, cookieOptions());
 
-    return res.status(200).send({ ok: true, token, user });
+    res.status(200).send({ ok: true, token, user });
+
+    // Sync calendars in the background
+    syncCalendars(user).catch((error) => capture(error));
   } catch (error) {
     capture(error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR, error });
@@ -69,7 +73,10 @@ router.post("/signup", async (req, res) => {
     const token = jwt.sign({ _id: user._id }, config.SECRET, { expiresIn: JWT_MAX_AGE });
     res.cookie("jwt_user", token, cookieOptions());
 
-    return res.status(200).send({ user, token, ok: true });
+    res.status(200).send({ user, token, ok: true });
+
+    // Sync calendars in the background
+    syncCalendars(user).catch((error) => capture(error));
   } catch (error) {
     console.log("e", error);
     if (error.code === 11000) return res.status(409).send({ ok: false, code: ERROR_CODES.USER_ALREADY_REGISTERED });
@@ -118,7 +125,10 @@ router.post("/google-login", async (req, res) => {
     const token = jwt.sign({ _id: user._id }, config.SECRET, { expiresIn: JWT_MAX_AGE });
     res.cookie("jwt_user", token, cookieOptions());
 
-    return res.status(200).send({ ok: true, token, user });
+    // Sync calendars in the background
+    syncCalendars(user).catch((error) => capture(error));
+
+    res.status(200).send({ ok: true, token, user });
   } catch (error) {
     capture(error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
@@ -160,7 +170,10 @@ router.get("/signin_token", passport.authenticate("user", { session: false }), a
     const token = jwt.sign({ _id: user._id }, config.SECRET, { expiresIn: JWT_MAX_AGE });
     res.cookie("jwt_user", token, cookieOptions());
 
-    return res.status(200).send({ user, token, ok: true });
+    res.status(200).send({ user, token, ok: true });
+
+    // Sync calendars in the background
+    syncCalendars(user).catch((error) => capture(error));
   } catch (error) {
     capture(error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR, error });

@@ -2,22 +2,12 @@ const express = require("express");
 const passport = require("passport");
 const router = express.Router();
 const EventModel = require("../models/event");
+const CalendarModel = require("../models/calendar");
 const ERROR_CODES = require("../utils/errorCodes");
 const { capture } = require("../services/sentry");
-const { syncEvents } = require("../services/google");
+const { syncCalendarEvents } = require("../services/google");
 
-// Middleware to sync events if needed
-const syncMiddleware = async (req, res, next) => {
-  try {
-    await syncEvents(req.user);
-    next();
-  } catch (error) {
-    capture(error);
-    next();
-  }
-};
-
-router.get("/", passport.authenticate("user", { session: false }), syncMiddleware, async (req, res) => {
+router.get("/", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     const data = await EventModel.find({ user_id: req.user._id }).sort({ "start.dateTime": -1 });
     return res.status(200).send({ ok: true, data });
@@ -38,7 +28,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-router.post("/search", passport.authenticate("user", { session: false }), syncMiddleware, async (req, res) => {
+router.post("/search", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     const { search, calendar_id, limit = 10, page = 1 } = req.body;
     let query = { user_id: req.user._id.toString() };
@@ -53,6 +43,16 @@ router.post("/search", passport.authenticate("user", { session: false }), syncMi
     const data = await EventModel.find(query).sort({ "start.dateTime": -1 }).skip(offset).limit(limit);
 
     return res.status(200).send({ ok: true, data, total });
+  } catch (error) {
+    capture(error);
+    return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
+  }
+});
+
+router.post("/:id/sync", passport.authenticate("user", { session: false }), async (req, res) => {
+  try {
+    await syncCalendarEvents(req.user, req.params.id);
+    return res.status(200).send({ ok: true });
   } catch (error) {
     capture(error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });

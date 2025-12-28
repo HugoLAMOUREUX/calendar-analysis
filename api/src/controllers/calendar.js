@@ -6,18 +6,7 @@ const ERROR_CODES = require("../utils/errorCodes");
 const { capture } = require("../services/sentry");
 const { syncCalendars } = require("../services/google");
 
-// Middleware to sync calendars if needed
-const syncMiddleware = async (req, res, next) => {
-  try {
-    await syncCalendars(req.user);
-    next();
-  } catch (error) {
-    capture(error);
-    next(); // Continue anyway even if sync fails
-  }
-};
-
-router.get("/", passport.authenticate("user", { session: false }), syncMiddleware, async (req, res) => {
+router.get("/", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     const data = await CalendarModel.find({ user_id: req.user._id }).sort({ created_at: -1 });
     return res.status(200).send({ ok: true, data });
@@ -38,7 +27,7 @@ router.get("/:id", passport.authenticate("user", { session: false }), async (req
   }
 });
 
-router.post("/search", passport.authenticate("user", { session: false }), syncMiddleware, async (req, res) => {
+router.post("/search", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     const { search, limit = 10, page = 1, _id } = req.body;
     let query = { user_id: req.user._id.toString() };
@@ -54,6 +43,16 @@ router.post("/search", passport.authenticate("user", { session: false }), syncMi
     const data = await CalendarModel.find(query).sort({ created_at: -1 }).skip(offset).limit(limit);
 
     return res.status(200).send({ ok: true, data, total });
+  } catch (error) {
+    capture(error);
+    return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
+  }
+});
+
+router.post("/sync", passport.authenticate("user", { session: false }), async (req, res) => {
+  try {
+    await syncCalendars(req.user);
+    return res.status(200).send({ ok: true });
   } catch (error) {
     capture(error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
