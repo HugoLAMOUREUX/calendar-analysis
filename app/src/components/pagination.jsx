@@ -1,47 +1,67 @@
 import React from "react"
-import { useTranslation } from "react-i18next"
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io"
 
-export default function Pagination({ total, per_page = 10, currentPage = 1, onNext = () => {}, onPrevious = () => {} }) {
-  const { t } = useTranslation("components")
+export default function Pagination({ total, per_page = 10, currentPage = 1, onChange = () => {} }) {
+  const totalPages = Math.ceil(total / per_page)
 
-  return total > 0 ? (
-    <div className="flex items-center justify-between py-1">
-      <div className="flex flex-1 items-center justify-between">
-        <div>
-          <p className="p-3 text-black-90 text-sm md:text-base">
-            {t("showing")}&nbsp;
-            <span className="font-medium">{(currentPage - 1) * per_page + 1}</span>&nbsp;
-            {t("to")}&nbsp;
-            <span className="font-medium">{Math.min(total, currentPage * per_page)}</span>&nbsp;
-            {t("of")} <span className="font-medium">{total}</span> {t("result", { count: total })}
-          </p>
-        </div>
-        <div>
-          <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm ml-3 bg-white" aria-label={t("pagination")}>
-            <button
-              disabled={currentPage <= 1}
-              onClick={onPrevious}
-              className="relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-            >
-              <IoIosArrowBack className="h-5 w-5" aria-hidden="true" />
-            </button>
-            <span className="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0">
-              {currentPage}
-            </span>
+  const getPages = () => {
+    const pages = []
+    const range = 2 // Number of pages to show around current page
 
-            <button
-              disabled={currentPage * per_page >= total}
-              onClick={onNext}
-              className="relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 disabled:opacity-50"
-            >
-              <IoIosArrowForward className="h-5 w-5" aria-hidden="true" />
-            </button>
-          </nav>
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage > range + 2) pages.push("...")
+
+      const start = Math.max(2, currentPage - range)
+      const end = Math.min(totalPages - 1, currentPage + range)
+
+      for (let i = start; i <= end; i++) pages.push(i)
+
+      if (currentPage < totalPages - (range + 1)) pages.push("...")
+      pages.push(totalPages)
+    }
+    return pages
+  }
+
+  if (total <= 0) return <div className="flex items-center justify-center p-8 text-gray-500 bg-white rounded-xl border border-gray-200">No results found</div>
+
+  return (
+    <div className="flex items-center justify-center py-4">
+      <nav className="flex items-center gap-2" aria-label="Pagination">
+        <button disabled={currentPage <= 1} onClick={() => onChange(currentPage - 1)} className="p-2 text-gray-400 hover:text-indigo-600 disabled:opacity-30 transition-colors">
+          <IoIosArrowBack className="h-5 w-5" />
+        </button>
+
+        <div className="flex items-center gap-1">
+          {getPages().map((page, index) => (
+            <React.Fragment key={index}>
+              {page === "..." ? (
+                <span className="px-3 py-2 text-gray-400">...</span>
+              ) : (
+                <button
+                  onClick={() => onChange(page)}
+                  className={`
+                    min-w-[40px] h-10 flex items-center justify-center rounded-full text-sm font-medium transition-all
+                    ${currentPage === page ? "bg-indigo-600 text-white shadow-lg shadow-indigo-200" : "text-gray-600 hover:bg-indigo-50 hover:text-indigo-600"}
+                  `}
+                >
+                  {page}
+                </button>
+              )}
+            </React.Fragment>
+          ))}
         </div>
-      </div>
+
+        <button
+          disabled={currentPage >= totalPages}
+          onClick={() => onChange(currentPage + 1)}
+          className="p-2 text-gray-400 hover:text-indigo-600 disabled:opacity-30 transition-colors"
+        >
+          <IoIosArrowForward className="h-5 w-5" />
+        </button>
+      </nav>
     </div>
-  ) : (
-    <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 md:px-6">{t("no_result")}</div>
   )
 }

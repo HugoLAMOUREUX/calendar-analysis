@@ -5,21 +5,38 @@ import toast from "react-hot-toast"
 
 import api from "@/services/api"
 import Loader from "@/components/loader"
+import SearchBar from "@/components/SearchBar"
+import Pagination from "@/components/pagination"
 
 export default function View() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const [calendar, setCalendar] = useState(null)
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
+  const [filters, setFilters] = useState({ search: "", page: 1, limit: 25 })
+  const [total, setTotal] = useState(0)
+
+  const fetchCalendar = async () => {
+    try {
+      const { ok, data } = await api.get(`/calendar/${id}`)
+      if (!ok) return toast.error("Calendar not found")
+      setCalendar(data)
+    } catch (e) {
+      console.error(e)
+      toast.error("An error occurred while fetching calendar info")
+    }
+  }
 
   const fetchEvents = async () => {
     try {
-      const { ok, data } = await api.get(`/event/list/${encodeURIComponent(id)}`)
-      if (!ok) {
-        toast.error("Failed to fetch events")
-        return
-      }
+      const { ok, data, total } = await api.post("/event/search", {
+        ...filters,
+        calendar_id: id
+      })
+      if (!ok) return toast.error("Failed to fetch events")
       setEvents(data)
+      setTotal(total)
     } catch (e) {
       console.error(e)
       toast.error("An error occurred while fetching events")
@@ -29,39 +46,52 @@ export default function View() {
   }
 
   useEffect(() => {
-    if (id) fetchEvents()
+    if (id) {
+      fetchCalendar()
+    }
   }, [id])
 
-  if (loading) return <Loader />
+  useEffect(() => {
+    if (id) {
+      fetchEvents()
+    }
+  }, [id, filters.search, filters.page])
+
+  if (loading && !calendar) return <Loader />
 
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
-        <button onClick={() => navigate("/calendars")} className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors mb-6">
-          <HiArrowLeft size={16} />
-          Back to calendars
-        </button>
-
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-12 w-12 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-            <HiCalendar size={24} />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Calendar Events</h1>
-            <p className="text-gray-600">Events from the selected calendar</p>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <button onClick={() => navigate("/calendars")} className="flex items-center gap-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors">
+            <HiArrowLeft size={16} />
+            Back to calendars
+          </button>
+          <div className="w-full md:w-64">
+            <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search events..." />
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="h-12 w-12 rounded-lg flex items-center justify-center text-white" style={{ backgroundColor: calendar?.backgroundColor || "#4f46e5" }}>
+            <HiCalendar size={24} />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{calendar?.summary || "Calendar Events"}</h1>
+            <p className="text-gray-600">{calendar?.description || "Events from the selected calendar"}</p>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
           <div className="divide-y divide-gray-100">
             {events.length === 0 ? (
               <div className="p-12 text-center text-gray-500">
                 <HiCalendar size={48} className="mx-auto mb-4 opacity-10" />
-                <p>No events found in this calendar for the next month.</p>
+                <p>No events found.</p>
               </div>
             ) : (
               events.map(event => (
-                <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors">
+                <div key={event._id} className="p-4 hover:bg-gray-50 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-gray-900 truncate">{event.summary || "(No title)"}</h4>
@@ -82,6 +112,8 @@ export default function View() {
             )}
           </div>
         </div>
+
+        <Pagination total={total} per_page={filters.limit} currentPage={filters.page} onChange={page => setFilters(f => ({ ...f, page }))} />
       </div>
     </div>
   )

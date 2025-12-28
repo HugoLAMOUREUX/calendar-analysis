@@ -14,7 +14,7 @@ const Schema = new mongoose.Schema(
     google_calendar_id: { type: String, required: true },
 
     // Google Event properties
-    google_id: { type: String, required: true, unique: true },
+    google_id: { type: String, required: true },
     kind: { type: String, default: "calendar#event" },
     etag: { type: String },
     status: { type: String },

@@ -1,28 +1,59 @@
 const express = require("express");
 const passport = require("passport");
 const router = express.Router();
+const CalendarModel = require("../models/calendar");
 const ERROR_CODES = require("../utils/errorCodes");
 const { capture } = require("../services/sentry");
+const { syncCalendars } = require("../services/google");
 
-router.get("/list", passport.authenticate("user", { session: false }), async (req, res) => {
+// Middleware to sync calendars if needed
+const syncMiddleware = async (req, res, next) => {
   try {
-    const { google_access_token } = req.user;
+    await syncCalendars(req.user);
+    next();
+  } catch (error) {
+    capture(error);
+    next(); // Continue anyway even if sync fails
+  }
+};
 
-    if (!google_access_token) {
-      return res.status(400).send({ ok: false, code: "GOOGLE_NOT_CONNECTED" });
+router.get("/", passport.authenticate("user", { session: false }), syncMiddleware, async (req, res) => {
+  try {
+    const data = await CalendarModel.find({ user_id: req.user._id }).sort({ created_at: -1 });
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    capture(error);
+    return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
+  }
+});
+
+router.get("/:id", passport.authenticate("user", { session: false }), async (req, res) => {
+  try {
+    const data = await CalendarModel.findOne({ _id: req.params.id, user_id: req.user._id });
+    if (!data) return res.status(404).send({ ok: false, code: ERROR_CODES.NOT_FOUND });
+    return res.status(200).send({ ok: true, data });
+  } catch (error) {
+    capture(error);
+    return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
+  }
+});
+
+router.post("/search", passport.authenticate("user", { session: false }), syncMiddleware, async (req, res) => {
+  try {
+    const { search, limit = 10, page = 1, _id } = req.body;
+    let query = { user_id: req.user._id.toString() };
+
+    if (_id) query._id = _id;
+
+    if (search) {
+      query.$or = [{ summary: { $regex: search, $options: "i" } }, { description: { $regex: search, $options: "i" } }];
     }
 
-    const response = await fetch("https://www.googleapis.com/calendar/v3/users/me/calendarList", {
-      headers: { Authorization: `Bearer ${google_access_token}` },
-    });
+    const offset = (page - 1) * limit;
+    const total = await CalendarModel.countDocuments(query);
+    const data = await CalendarModel.find(query).sort({ created_at: -1 }).skip(offset).limit(limit);
 
-    const data = await response.json();
-
-    if (data.error) {
-      return res.status(data.error.code || 400).send({ ok: false, error: data.error });
-    }
-
-    return res.status(200).send({ ok: true, data: data.items || [] });
+    return res.status(200).send({ ok: true, data, total });
   } catch (error) {
     capture(error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });

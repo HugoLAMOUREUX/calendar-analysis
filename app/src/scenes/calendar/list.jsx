@@ -5,15 +5,19 @@ import toast from "react-hot-toast"
 
 import api from "@/services/api"
 import Loader from "@/components/loader"
+import SearchBar from "@/components/SearchBar"
+import Pagination from "@/components/pagination"
 
 export default function List() {
   const [calendars, setCalendars] = useState([])
   const [loading, setLoading] = useState(true)
+  const [filters, setFilters] = useState({ search: "", page: 1, limit: 10 })
+  const [total, setTotal] = useState(0)
   const navigate = useNavigate()
 
   const fetchCalendars = async () => {
     try {
-      const { ok, data } = await api.get("/calendar/list")
+      const { ok, data, total } = await api.post("/calendar/search", filters)
       if (!ok) {
         if (data?.code !== "GOOGLE_NOT_CONNECTED") {
           toast.error("Failed to fetch calendars")
@@ -21,6 +25,7 @@ export default function List() {
         return
       }
       setCalendars(data)
+      setTotal(total)
     } catch (e) {
       console.error(e)
       toast.error("An error occurred while fetching calendars")
@@ -31,24 +36,29 @@ export default function List() {
 
   useEffect(() => {
     fetchCalendars()
-  }, [])
+  }, [filters.search, filters.page])
 
-  if (loading) return <Loader />
+  if (loading && !calendars.length) return <Loader />
 
   return (
     <div className="p-8">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="h-12 w-12 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <HiSparkles className="text-white h-6 w-6" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-lg bg-indigo-600 flex items-center justify-center">
+              <HiSparkles className="text-white h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Your Calendars</h1>
+              <p className="text-gray-600">Select a calendar to analyze its events</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Your Calendars</h1>
-            <p className="text-gray-600">Select a calendar to analyze its events</p>
+          <div className="w-full md:w-64">
+            <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search calendars..." />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {calendars.length === 0 && (
             <div className="col-span-full bg-white rounded-xl border border-gray-200 p-8 text-center">
               <HiCalendar size={48} className="mx-auto mb-4 text-gray-300" />
@@ -58,8 +68,8 @@ export default function List() {
 
           {calendars.map(calendar => (
             <button
-              key={calendar.id}
-              onClick={() => navigate(`/calendars/${encodeURIComponent(calendar.id)}`)}
+              key={calendar._id}
+              onClick={() => navigate(`/calendars/${calendar._id}`)}
               className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition-all flex items-center gap-4 text-left"
             >
               <div className="w-4 h-4 rounded-full flex-shrink-0" style={{ backgroundColor: calendar.backgroundColor }} />
@@ -71,6 +81,8 @@ export default function List() {
             </button>
           ))}
         </div>
+
+        <Pagination total={total} per_page={filters.limit} currentPage={filters.page} onChange={page => setFilters(f => ({ ...f, page }))} />
       </div>
     </div>
   )

@@ -22,6 +22,9 @@ const Schema = new mongoose.Schema(
     google_id: { type: String, unique: true, sparse: true },
     google_access_token: { type: String },
     google_refresh_token: { type: String },
+
+    last_calendar_sync_at: { type: Date },
+    last_event_sync_at: { type: Date },
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } },
 );
