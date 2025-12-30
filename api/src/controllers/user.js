@@ -76,6 +76,8 @@ router.post("/google-login", async (req, res) => {
 
     if (!user) {
       user = await UserObject.create(userUpdate);
+      // Sync calendars in the background ONLY on creation
+      syncCalendars(user).catch((error) => capture(error));
     } else {
       user.set(userUpdate);
       await user.save();
@@ -83,9 +85,6 @@ router.post("/google-login", async (req, res) => {
 
     const token = jwt.sign({ _id: user._id }, config.SECRET, { expiresIn: JWT_MAX_AGE });
     res.cookie("jwt_user", token, cookieOptions());
-
-    // Sync calendars in the background
-    syncCalendars(user).catch((error) => capture(error));
 
     res.status(200).send({ ok: true, token, user });
   } catch (error) {
@@ -115,9 +114,6 @@ router.get("/signin_token", passport.authenticate("user", { session: false }), a
     res.cookie("jwt_user", token, cookieOptions());
 
     res.status(200).send({ user, token, ok: true });
-
-    // Sync calendars in the background
-    syncCalendars(user).catch((error) => capture(error));
   } catch (error) {
     capture(error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR, error });

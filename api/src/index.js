@@ -41,6 +41,8 @@ app.use("/event", require("./controllers/event"));
 app.use("/admin", require("./controllers/admin"));
 app.use("/file", require("./controllers/file"));
 
+require("./cron");
+
 setupErrorHandler(app);
 require("./services/passport")(app);
 
