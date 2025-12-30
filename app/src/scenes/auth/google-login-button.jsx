@@ -22,10 +22,13 @@ export default function GoogleLoginButton() {
       const { ok: okConfig, data: clientId } = await api.get("/user/google-client-id")
       if (!okConfig) throw new Error("Could not fetch Google configuration")
 
-      // 2. Initialize Google Token Client
-      const client = window.google.accounts.oauth2.initTokenClient({
+      // 2. Initialize Google Code Client
+      const client = window.google.accounts.oauth2.initCodeClient({
         client_id: clientId,
         scope: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+        ux_mode: "popup",
+        access_type: "offline",
+        prompt: "consent",
         callback: async response => {
           if (response.error) {
             setLoading(false)
@@ -33,9 +36,9 @@ export default function GoogleLoginButton() {
           }
 
           try {
-            // 3. Send only the access_token to the backend
+            // 3. Send the code to the backend
             const { ok, user, token } = await api.post("/user/google-login", {
-              access_token: response.access_token
+              code: response.code
             })
 
             if (!ok) {
@@ -56,7 +59,7 @@ export default function GoogleLoginButton() {
         }
       })
 
-      client.requestAccessToken()
+      client.requestCode()
     } catch (e) {
       console.error(e)
       toast.error(e.message || "An error occurred")

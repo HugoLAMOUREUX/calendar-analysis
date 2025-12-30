@@ -3,14 +3,30 @@ const CalendarModel = require("../models/calendar");
 const EventModel = require("../models/event");
 const config = require("../config");
 
-async function syncCalendars(user) {
-  if (!user.google_access_token) return;
-
+function getOAuth2Client(user) {
   const oauth2Client = new google.auth.OAuth2(config.GOOGLE_OAUTH_CLIENT_ID, config.GOOGLE_OAUTH_CLIENT_SECRET);
   oauth2Client.setCredentials({
     access_token: user.google_access_token,
     refresh_token: user.google_refresh_token,
   });
+
+  oauth2Client.on("tokens", async (tokens) => {
+    if (tokens.refresh_token) {
+      user.google_refresh_token = tokens.refresh_token;
+    }
+    if (tokens.access_token) {
+      user.google_access_token = tokens.access_token;
+    }
+    await user.save();
+  });
+
+  return oauth2Client;
+}
+
+async function syncCalendars(user) {
+  if (!user.google_access_token) return;
+
+  const oauth2Client = getOAuth2Client(user);
 
   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
   const { data } = await calendar.calendarList.list();
@@ -63,11 +79,7 @@ async function syncCalendars(user) {
 async function syncCalendarEvents(user, calendarId) {
   if (!user.google_access_token) return;
 
-  const oauth2Client = new google.auth.OAuth2(config.GOOGLE_OAUTH_CLIENT_ID, config.GOOGLE_OAUTH_CLIENT_SECRET);
-  oauth2Client.setCredentials({
-    access_token: user.google_access_token,
-    refresh_token: user.google_refresh_token,
-  });
+  const oauth2Client = getOAuth2Client(user);
 
   const calendarApi = google.calendar({ version: "v3", auth: oauth2Client });
 

@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const router = express.Router();
 const crypto = require("crypto");
 
+const { google } = require("googleapis");
 const UserObject = require("../models/user");
 
 const config = require("../config");
@@ -91,13 +92,22 @@ router.get("/google-client-id", async (req, res) => {
 
 router.post("/google-login", async (req, res) => {
   try {
-    const { access_token } = req.body;
+    const { code } = req.body;
 
-    if (!access_token) return res.status(400).send({ ok: false, code: ERROR_CODES.INVALID_PARAMS });
+    if (!code) return res.status(400).send({ ok: false, code: ERROR_CODES.INVALID_PARAMS });
 
-    // Verify token and get user info from Google directly from the backend
-    const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`);
-    const userInfo = await response.json();
+    const oauth2Client = new google.auth.OAuth2(
+      config.GOOGLE_OAUTH_CLIENT_ID,
+      config.GOOGLE_OAUTH_CLIENT_SECRET,
+      "postmessage",
+    );
+
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    // Get user info from Google
+    const oauth2 = google.oauth2({ version: "v2", auth: oauth2Client });
+    const { data: userInfo } = await oauth2.userinfo.get();
 
     if (!userInfo || !userInfo.email) {
       return res.status(401).send({ ok: false, code: ERROR_CODES.UNAUTHORIZED });
@@ -105,20 +115,24 @@ router.post("/google-login", async (req, res) => {
 
     let user = await UserObject.findOne({ email: userInfo.email.toLowerCase() });
 
+    const userUpdate = {
+      google_id: userInfo.id,
+      email: userInfo.email.toLowerCase(),
+      name: userInfo.name,
+      avatar: userInfo.picture,
+      google_access_token: tokens.access_token,
+      last_login_at: Date.now(),
+    };
+
+    // Only update refresh_token if it's provided (it's only sent the first time or if prompt=consent)
+    if (tokens.refresh_token) {
+      userUpdate.google_refresh_token = tokens.refresh_token;
+    }
+
     if (!user) {
-      user = await UserObject.create({
-        google_id: userInfo.sub,
-        email: userInfo.email.toLowerCase(),
-        name: userInfo.name,
-        avatar: userInfo.picture,
-        google_access_token: access_token,
-      });
+      user = await UserObject.create(userUpdate);
     } else {
-      user.set({
-        google_id: userInfo.sub,
-        google_access_token: access_token,
-        last_login_at: Date.now(),
-      });
+      user.set(userUpdate);
       await user.save();
     }
 
@@ -131,6 +145,7 @@ router.post("/google-login", async (req, res) => {
     res.status(200).send({ ok: true, token, user });
   } catch (error) {
     capture(error);
+    console.error("Google Login Error:", error);
     return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
   }
 });
