@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-8ad9470e.js"(exports, module) {
+  "assets/index-3522e834.js"(exports, module) {
     function _mergeNamespaces(n2, m2) {
       for (var i2 = 0; i2 < m2.length; i2++) {
         const e2 = m2[i2];
@@ -22909,9 +22909,12 @@ Url: ${_getEventFilterUrl(event)}`
           const { ok: okConfig, data: clientId } = await API.get("/user/google-client-id");
           if (!okConfig)
             throw new Error("Could not fetch Google configuration");
-          const client2 = window.google.accounts.oauth2.initTokenClient({
+          const client2 = window.google.accounts.oauth2.initCodeClient({
             client_id: clientId,
             scope: "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile",
+            ux_mode: "popup",
+            access_type: "offline",
+            prompt: "consent",
             callback: async (response) => {
               if (response.error) {
                 setLoading(false);
@@ -22919,7 +22922,7 @@ Url: ${_getEventFilterUrl(event)}`
               }
               try {
                 const { ok: ok2, user, token: token2 } = await API.post("/user/google-login", {
-                  access_token: response.access_token
+                  code: response.code
                 });
                 if (!ok2) {
                   setLoading(false);
@@ -22938,7 +22941,7 @@ Url: ${_getEventFilterUrl(event)}`
               }
             }
           });
-          client2.requestAccessToken();
+          client2.requestCode();
         } catch (e2) {
           console.error(e2);
           _t.error(e2.message || "An error occurred");
