@@ -54,7 +54,7 @@ const AuthLayout = () => {
   if (user) return <Navigate to="/" replace={true} />
   return (
     <div className="flex flex-col justify-center items-center gap-8 w-screen h-screen">
-      <h1 className="text-3xl font-bold">Boilerplate</h1>
+      <h1 className="text-3xl font-bold">Calendar analysis</h1>
       <Outlet />
     </div>
   )

@@ -9,8 +9,8 @@ if (ENVIRONMENT === "development") {
 }
 
 if (ENVIRONMENT === "production") {
-  APP_URL = "https://boilerplate-app.cleverapps.io/ ";
-  API_URL = "https://boilerplate-api.cleverapps.io/";
+  APP_URL = "https://calendar-analysis-app.cleverapps.io/ ";
+  API_URL = "https://calendar-analysis-api.cleverapps.io/";
 }
 
 const SENTRY_URL = "";
