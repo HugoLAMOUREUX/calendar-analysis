@@ -31,37 +31,45 @@ async function syncCalendars(user) {
   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
   const { data } = await calendar.calendarList.list();
 
-  // Delete all existing calendars for this user
-  await CalendarModel.deleteMany({ user_id: user._id.toString() });
-
-  // Bulk create new calendars
+  // Update or create calendars instead of deleting all
+  const insertedCalendars = [];
   if (data.items && data.items.length > 0) {
-    const calendarsToCreate = data.items.map((item) => ({
-      user_id: user._id.toString(),
-      user_name: user.name,
-      user_avatar: user.avatar,
-      google_id: item.id,
-      etag: item.etag,
-      summary: item.summary,
-      description: item.description,
-      timeZone: item.timeZone,
-      accessRole: item.accessRole,
-      backgroundColor: item.backgroundColor,
-      foregroundColor: item.foregroundColor,
-      colorId: item.colorId,
-      kind: item.kind,
-      conferenceProperties: item.conferenceProperties,
-      defaultReminders: item.defaultReminders,
-      last_synced_at: new Date(),
-    }));
-    let insertedCalendars = [];
-    try {
-      insertedCalendars = await CalendarModel.insertMany(calendarsToCreate, { ordered: false });
-    } catch (e) {
-      console.error(`Failed to insert calendars:`, e.message);
+    for (const item of data.items) {
+      const calendarData = {
+        user_id: user._id.toString(),
+        user_name: user.name,
+        user_avatar: user.avatar,
+        google_id: item.id,
+        etag: item.etag,
+        summary: item.summary,
+        description: item.description,
+        timeZone: item.timeZone,
+        accessRole: item.accessRole,
+        backgroundColor: item.backgroundColor,
+        foregroundColor: item.foregroundColor,
+        colorId: item.colorId,
+        kind: item.kind,
+        conferenceProperties: item.conferenceProperties,
+        defaultReminders: item.defaultReminders,
+        last_synced_at: new Date(),
+      };
+
+      try {
+        const cal = await CalendarModel.findOneAndUpdate(
+          { user_id: user._id.toString(), google_id: item.id },
+          calendarData,
+          {
+            upsert: true,
+            new: true,
+          },
+        );
+        insertedCalendars.push(cal);
+      } catch (e) {
+        console.error(`Failed to upsert calendar ${item.summary}:`, e.message);
+      }
     }
 
-    // After adding calendars, sync events for each one
+    // After adding/updating calendars, sync events for each one
     for (const cal of insertedCalendars) {
       try {
         await syncCalendarEvents(user, cal._id);
@@ -174,7 +182,8 @@ async function syncCalendarEvents(user, calendarId) {
       });
 
       // Delete all existing events for this specific calendar only AFTER we have the new data
-      await EventModel.deleteMany({ calendar_id: cal._id.toString() });
+      // We use google_calendar_id to ensure we delete events even if the internal calendar_id changed in the past
+      await EventModel.deleteMany({ user_id: user._id.toString(), google_calendar_id: cal.google_id });
 
       await EventModel.insertMany(eventsToCreate, { ordered: false });
     }
