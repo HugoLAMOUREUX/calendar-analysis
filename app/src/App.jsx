@@ -8,6 +8,7 @@ import Calendar from "@/scenes/calendar"
 import Syncing from "@/scenes/calendar/syncing"
 import Event from "@/scenes/event"
 import Account from "@/scenes/account"
+import Wrapped from "@/scenes/wrapped"
 import Terms from "@/scenes/legal-pages/terms"
 import Privacy from "@/scenes/legal-pages/privacy"
 
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/calendars/*" element={<Calendar />} />
           <Route path="/syncing" element={<Syncing />} />
           <Route path="/events/*" element={<Event />} />
+          <Route path="/wrapped/*" element={<Wrapped />} />
           <Route path="/account" element={<Account />} />
         </Route>
         <Route path="*" element={<Navigate to="/calendars" />} />

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, Fragment } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { Menu, Transition } from "@headlessui/react"
-import { HiOutlineCalendar, HiOutlineCollection } from "react-icons/hi"
+import { HiOutlineCalendar, HiOutlineCollection, HiOutlineGift } from "react-icons/hi"
 import { HiBars3, HiXMark, HiSparkles } from "react-icons/hi2"
 import { TbLogout, TbUser } from "react-icons/tb"
 
@@ -10,7 +10,8 @@ import api from "@/services/api"
 
 const MENU = [
   { title: "Calendars", to: "/calendars", logo: <HiOutlineCalendar className="h-6 w-6" /> },
-  { title: "Events", to: "/events", logo: <HiOutlineCollection className="h-6 w-6" /> }
+  { title: "Events", to: "/events", logo: <HiOutlineCollection className="h-6 w-6" /> },
+  { title: "Wrapped", to: "/wrapped", logo: <HiOutlineGift className="h-6 w-6" /> }
 ]
 
 const Navbar = () => {

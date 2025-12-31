@@ -44,6 +44,7 @@ app.use("/calendar", require("./controllers/calendar"));
 app.use("/event", require("./controllers/event"));
 app.use("/admin", require("./controllers/admin"));
 app.use("/file", require("./controllers/file"));
+app.use("/wrapped", require("./controllers/wrapped"));
 
 require("./cron");
 
