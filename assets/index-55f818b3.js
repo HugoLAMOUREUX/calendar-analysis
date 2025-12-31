@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-d91108da.js"(exports, module) {
+  "assets/index-55f818b3.js"(exports, module) {
     function _mergeNamespaces(n2, m2) {
       for (var i2 = 0; i2 < m2.length; i2++) {
         const e2 = m2[i2];
@@ -16306,7 +16306,7 @@ Url: ${_getEventFilterUrl(event)}`
       const handleSync = async () => {
         setSyncing(true);
         try {
-          const { ok: ok2 } = await API.post(`/event/${id2}/sync`);
+          const { ok: ok2 } = await API.post(`/calendar/${id2}/sync`);
           if (!ok2)
             throw new Error("Sync failed");
           _t.success("Events synced successfully!");
@@ -16416,7 +16416,11 @@ Url: ${_getEventFilterUrl(event)}`
           /* @__PURE__ */ jsxRuntimeExports.jsx(Tab, { title: "Event List", active: activeTab === "list", onClick: () => setActiveTab("list"), Icon: HiListBullet }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Tab, { title: "Raw Data", active: activeTab === "raw", onClick: () => setActiveTab("raw"), Icon: HiOutlineCodeBracket })
         ] }),
-        activeTab === "analysis" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        syncing && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-xl border border-gray-200 p-12 text-center mb-8 shadow-sm", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4 text-gray-600 font-medium tracking-tight", children: "Updating your calendar data..." })
+        ] }),
+        !syncing && activeTab === "analysis" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx(
             Analysis,
             {
@@ -16430,7 +16434,7 @@ Url: ${_getEventFilterUrl(event)}`
           ),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Pagination, { total: analysisTotal, per_page: 10, currentPage: analysisPage, onChange: (page) => setAnalysisPage(page) })
         ] }),
-        activeTab === "list" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+        !syncing && activeTab === "list" && /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "divide-y divide-gray-100", children: events.length === 0 ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "p-12 text-center text-gray-500", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(HiCalendar, { size: 48, className: "mx-auto mb-4 opacity-10" }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "No events found." })
@@ -16449,7 +16453,7 @@ Url: ${_getEventFilterUrl(event)}`
           ] }) }, event._id)) }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsx(Pagination, { total, per_page: filters.limit, currentPage: filters.page, onChange: (page) => setFilters((f2) => ({ ...f2, page })) })
         ] }),
-        activeTab === "raw" && /* @__PURE__ */ jsxRuntimeExports.jsx(RawData$1, { data: calendar })
+        !syncing && activeTab === "raw" && /* @__PURE__ */ jsxRuntimeExports.jsx(RawData$1, { data: calendar })
       ] }) });
     }
     function Analysis({ data, sort, setSort }) {
