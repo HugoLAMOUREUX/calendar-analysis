@@ -51,7 +51,7 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
 router.post("/sync", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
-    await syncCalendars(req.user);
+    syncCalendars(req.user).catch((error) => capture(error));
     return res.status(200).send({ ok: true });
   } catch (error) {
     capture(error);

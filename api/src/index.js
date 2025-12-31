@@ -9,6 +9,10 @@ const { initSentry, setupErrorHandler } = require("./services/sentry");
 const { PORT, ENVIRONMENT, APP_URL, ADMIN_URL } = require("./config");
 
 const app = express();
+const http = require("http");
+const server = http.createServer(app);
+require("./services/socket").init(server);
+
 initSentry(app);
 
 if (ENVIRONMENT === "development") {
@@ -46,6 +50,6 @@ require("./cron");
 setupErrorHandler(app);
 require("./services/passport")(app);
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });

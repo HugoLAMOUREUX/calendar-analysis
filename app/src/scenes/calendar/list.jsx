@@ -11,7 +11,6 @@ import Pagination from "@/components/pagination"
 export default function List() {
   const [calendars, setCalendars] = useState([])
   const [loading, setLoading] = useState(true)
-  const [syncing, setSyncing] = useState(false)
   const [filters, setFilters] = useState({ search: "", page: 1, limit: 10 })
   const [total, setTotal] = useState(0)
   const navigate = useNavigate()
@@ -32,21 +31,6 @@ export default function List() {
       toast.error("An error occurred while fetching calendars")
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handleSync = async () => {
-    setSyncing(true)
-    try {
-      const { ok } = await api.post("/calendar/sync")
-      if (!ok) throw new Error("Sync failed")
-      toast.success("Calendars synced successfully!")
-      fetchCalendars()
-    } catch (e) {
-      console.error(e)
-      toast.error("Failed to sync calendars")
-    } finally {
-      setSyncing(false)
     }
   }
 
@@ -71,12 +55,11 @@ export default function List() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={handleSync}
-              disabled={syncing}
+              onClick={() => navigate("/syncing")}
               className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all disabled:opacity-50"
             >
-              <HiArrowPath className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
-              {syncing ? "Syncing..." : "Refresh"}
+              <HiArrowPath className="h-4 w-4" />
+              Refresh
             </button>
             <div className="w-full md:w-64">
               <SearchBar search={filters.search} setFilter={setFilters} placeholder="Search calendars..." />

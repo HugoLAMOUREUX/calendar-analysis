@@ -2,6 +2,7 @@ const { google } = require("googleapis");
 const CalendarModel = require("../models/calendar");
 const EventModel = require("../models/event");
 const config = require("../config");
+const { emitToUser } = require("./socket");
 
 function getOAuth2Client(user) {
   const oauth2Client = new google.auth.OAuth2(config.GOOGLE_OAUTH_CLIENT_ID, config.GOOGLE_OAUTH_CLIENT_SECRET);
@@ -26,6 +27,11 @@ function getOAuth2Client(user) {
 async function syncCalendars(user) {
   if (!user.google_access_token) return;
 
+  emitToUser(user._id.toString(), "sync_progress", {
+    status: "fetching_calendars",
+    message: "Fetching your calendars...",
+  });
+
   const oauth2Client = getOAuth2Client(user);
 
   const calendar = google.calendar({ version: "v3", auth: oauth2Client });
@@ -34,6 +40,11 @@ async function syncCalendars(user) {
   // Update or create calendars instead of deleting all
   const insertedCalendars = [];
   if (data.items && data.items.length > 0) {
+    emitToUser(user._id.toString(), "sync_progress", {
+      status: "processing_calendars",
+      message: `Processing ${data.items.length} calendars...`,
+    });
+
     for (const item of data.items) {
       const calendarData = {
         user_id: user._id.toString(),
@@ -70,9 +81,17 @@ async function syncCalendars(user) {
     }
 
     // After adding/updating calendars, sync events for each one
+    let i = 1;
     for (const cal of insertedCalendars) {
       try {
+        emitToUser(user._id.toString(), "sync_progress", {
+          status: "syncing_events",
+          message: `Syncing events for calendar ${i}/${insertedCalendars.length}: ${cal.summary}`,
+          current: i,
+          total: insertedCalendars.length,
+        });
         await syncCalendarEvents(user, cal._id);
+        i++;
       } catch (e) {
         console.error(`Failed to sync events for calendar ${cal.summary} during initial sync:`, e.message);
       }
@@ -82,6 +101,8 @@ async function syncCalendars(user) {
   // Update user last sync
   user.last_calendar_sync_at = new Date();
   await user.save();
+
+  emitToUser(user._id.toString(), "sync_progress", { status: "completed", message: "Synchronization complete!" });
 }
 
 async function syncCalendarEvents(user, calendarId) {

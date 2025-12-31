@@ -51,7 +51,6 @@ export default function Signin() {
             if (user) setUser(user)
 
             toast.success("Successfully signed in with Google!")
-            navigate("/")
           } catch (e) {
             console.error(e)
             toast.error("An error occurred during Google login")

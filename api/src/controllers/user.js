@@ -76,8 +76,6 @@ router.post("/google-login", async (req, res) => {
 
     if (!user) {
       user = await UserObject.create(userUpdate);
-      // Sync calendars in the background ONLY on creation
-      syncCalendars(user).catch((error) => capture(error));
     } else {
       user.set(userUpdate);
       await user.save();

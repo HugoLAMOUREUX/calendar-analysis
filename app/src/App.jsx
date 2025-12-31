@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react"
-import { BrowserRouter, Navigate, Outlet, Route, Routes } from "react-router-dom"
+import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "react-router-dom"
 import { Toaster } from "react-hot-toast"
 import * as Sentry from "@sentry/browser"
 
 import Auth from "@/scenes/auth"
 import Calendar from "@/scenes/calendar"
+import Syncing from "@/scenes/calendar/syncing"
 import Event from "@/scenes/event"
 import Account from "@/scenes/account"
 import Terms from "@/scenes/legal-pages/terms"
@@ -35,6 +36,7 @@ export default function App() {
         </Route>
         <Route element={<UserLayout />}>
           <Route path="/calendars/*" element={<Calendar />} />
+          <Route path="/syncing" element={<Syncing />} />
           <Route path="/events/*" element={<Event />} />
           <Route path="/account" element={<Account />} />
         </Route>
@@ -63,6 +65,7 @@ const AuthLayout = () => {
 const UserLayout = () => {
   const [loading, setLoading] = useState(true)
   const { user, setUser, isNavCollapsed } = useStore()
+  const location = useLocation()
 
   async function fetchUser() {
     try {
@@ -88,6 +91,11 @@ const UserLayout = () => {
   if (loading) return <Loader />
 
   if (!user) return <Navigate to="/auth" replace={true} />
+
+  // If user is logged in but never synced, redirect to syncing page
+  if (!user.last_calendar_sync_at && location.pathname !== "/syncing") {
+    return <Navigate to="/syncing" replace={true} />
+  }
 
   return (
     <div className="flex h-screen overflow-hidden">
