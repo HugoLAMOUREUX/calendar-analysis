@@ -1,16 +1,13 @@
-# Boilerplate
+# Calendar Analysis
 
-## 🚀 Quick Start
+A comprehensive tool to analyze your Google Calendar usage, providing insights into your time management, meeting habits, and a yearly "Wrapped" summary.
 
-1. Create a new project on GitHub
+## 🚀 Features
 
-2. Copy and paste the files from the Boilerplate into your project
-
-3. Replace all `[boilerplate_name]` with your project's name
-
-4. Replace index.html information with your project's information
-
----
+- **Calendar Sync**: Seamlessly sync with your Google Calendars.
+- **Event Analysis**: Visualize how you spend your time with detailed charts and stats.
+- **Yearly Wrapped**: Get a Spotify-like yearly summary of your calendar (Top collaborators, most intense weeks, persona, etc.).
+- **Multi-Calendar Support**: Analyze multiple calendars at once.
 
 ## 📦 Structure
 
@@ -18,147 +15,113 @@ The project is composed of 3 applications:
 
 - **api/** - Node.js/Express backend with MongoDB
 - **app/** - React frontend (user application)
-- **admin/** - React frontend (admin panel)
+- **admin/** - React frontend (admin panel - optional)
 
 ---
 
-## API Installation
+## 🛠 Prerequisites
 
-1. Install the dependencies
-
-   ```bash
-   cd api
-   npm install
-   ```
-
-2. Create your database on Clever Cloud
-
-   - Create a MongoDB add-on
-   - Retrieve the MongoDB connection URI from the add-on information
-
-3. Create `.env` file in `/api`:
-
-   ```env
-   MONGO_URI=your-mongodb-uri
-   SECRET=your-jwt-secret
-   BREVO_KEY=your-brevo-api-key
-   APP_URL=http://localhost:3000
-   ADMIN_URL=http://localhost:3001
-   ENVIRONMENT=development
-   ```
-
-   Default ports:
-
-   - API: `8080`
-   - App: `3000`
-   - Admin: `3001`
-
-4. Configure Sentry (optional)
-
-   In `api/src/config.js`, add your Sentry DSN.
-
-5. Start the server
-
-   ```bash
-   npm run dev
-   ```
+- Node.js (v18+)
+- MongoDB Database
+- Google Cloud Console Project (for OAuth)
 
 ---
 
-## APP Installation
+## ⚙️ Google Cloud Setup (Required)
 
-1. Install the dependencies
+To enable "Login with Google" and Calendar sync, you need a Google Cloud Project.
 
-   ```bash
-   cd app
-   npm install
-   ```
-
-2. Configure Sentry (optional)
-
-   In `app/src/config.js`, add your Sentry DSN:
-
-   ```javascript
-   const SENTRY_URL = "YOUR_SENTRY_URL";
-   ```
-
-3. Start the server
-
-   ```bash
-   npm run dev
-   ```
-
----
-
-## Admin Installation
-
-1. Install the dependencies
-
-   ```bash
-   cd admin
-   npm install
-   ```
-
-2. Configure Sentry (optional)
-
-   In `admin/src/config.js`, add your Sentry DSN.
-
-3. Start the server
-
-   ```bash
-   npm run dev
-   ```
+1. Go to [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project.
+3. **Enable APIs**:
+   - Go to "APIs & Services" > "Library".
+   - Search for and enable **Google Calendar API**.
+4. **Configure OAuth Consent Screen**:
+   - Go to "APIs & Services" > "OAuth consent screen".
+   - Choose **External** (or Internal if you have a Workspace).
+   - Fill in app details.
+   - Add scopes:
+     - `.../auth/userinfo.email`
+     - `.../auth/userinfo.profile`
+     - `.../auth/calendar.readonly` (or full access if needed)
+   - Add test users (your email) while in testing mode.
+5. **Create Credentials**:
+   - Go to "APIs & Services" > "Credentials".
+   - Create **OAuth client ID** > **Web application**.
+   - **Authorized JavaScript origins**:
+     - `http://localhost:3000` (Frontend)
+   - **Authorized redirect URIs**:
+     - `http://localhost:3000`
+     - `http://localhost:8080/auth/google/callback` (Backend callback)
+   - Copy your **Client ID** and **Client Secret**.
 
 ---
 
-## 📧 Brevo Configuration (Emails)
+## 🚀 Installation & Setup
 
-For email features to work (forgot password, invitations, etc.), you need to configure Brevo:
+### 1. Backend (API)
 
-### 1. Create a Brevo account
-
-Go to [Brevo](https://www.brevo.com/) and create an account.
-
-### 2. Get the API key
-
-- Go to **Settings** > **API Keys**
-- Create a new API key
-- Add it to your `.env` file: `BREVO_KEY=your-api-key`
-
-### 3. Configure the sender
-
-In `api/src/services/brevo.js`, update the constants:
-
-```javascript
-const SENDER_NAME = "Your App Name";
-const SENDER_EMAIL = "noreply@yourdomain.com";
+```bash
+cd api
+npm install
 ```
 
-### 4. Create email templates
+Create a `.env` file in `/api`:
 
-Create templates in Brevo (**Marketing** > **Templates** > **Create Template**):
+```env
+PORT=8080
+MONGO_URI=your-mongodb-uri
+SECRET=your-jwt-secret
+APP_URL=http://localhost:3000
+ADMIN_URL=http://localhost:3001
+ENVIRONMENT=development
 
-| Template           | Usage            | Required variables      |
-| ------------------ | ---------------- | ----------------------- |
-| `FORGOT_PASSWORD`  | Password reset   | `cta` (reset link)      |
-| `ADMIN_INVITATION` | Admin invitation | `cta` (invitation link) |
+# Google OAuth
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GOOGLE_CALLBACK_URL=http://localhost:8080/auth/google/callback
 
-### 5. Configure template IDs
-
-In `api/src/utils/constants.js`, add the created template IDs:
-
-```javascript
-const BREVO_TEMPLATES = {
-  FORGOT_PASSWORD: 1, // Replace with your template ID
-  ADMIN_INVITATION: 2, // Replace with your template ID
-};
-
-module.exports = { BREVO_TEMPLATES };
+# Optional (for emails)
+BREVO_KEY=your-brevo-api-key
 ```
 
-### Brevo template example
+Start the API:
 
-For the `FORGOT_PASSWORD` template, create an email with:
+```bash
+npm run dev
+```
 
-- A button or link using the variable `{{ params.cta }}`
-- Example: `<a href="{{ params.cta }}">Reset my password</a>`
+### 2. Frontend (App)
+
+```bash
+cd app
+npm install
+```
+
+Start the App:
+
+```bash
+npm run dev
+```
+
+The app should now be running at `http://localhost:3000`.
+
+---
+
+## 📧 Email Configuration (Optional - Brevo)
+
+If you want to enable features like "Forgot Password", configure Brevo:
+
+1. Get your API Key from [Brevo](https://www.brevo.com/).
+2. Add `BREVO_KEY` to `api/.env`.
+3. Configure templates in `api/src/utils/constants.js`.
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
