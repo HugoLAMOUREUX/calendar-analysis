@@ -81,7 +81,7 @@ export default function View() {
   const handleSync = async () => {
     setSyncing(true)
     try {
-      const { ok } = await api.post(`/event/${id}/sync`)
+      const { ok } = await api.post(`/calendar/${id}/sync`)
       if (!ok) throw new Error("Sync failed")
       toast.success("Events synced successfully!")
       fetchEvents()
@@ -189,7 +189,14 @@ export default function View() {
           <Tab title="Raw Data" active={activeTab === "raw"} onClick={() => setActiveTab("raw")} Icon={HiOutlineCodeBracket} />
         </div>
 
-        {activeTab === "analysis" && (
+        {syncing && (
+          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center mb-8 shadow-sm">
+            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto" />
+            <p className="mt-4 text-gray-600 font-medium tracking-tight">Updating your calendar data...</p>
+          </div>
+        )}
+
+        {!syncing && activeTab === "analysis" && (
           <>
             <Analysis
               data={analysis}
@@ -202,7 +209,7 @@ export default function View() {
             <Pagination total={analysisTotal} per_page={10} currentPage={analysisPage} onChange={page => setAnalysisPage(page)} />
           </>
         )}
-        {activeTab === "list" && (
+        {!syncing && activeTab === "list" && (
           <>
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
               <div className="divide-y divide-gray-100">
@@ -237,7 +244,7 @@ export default function View() {
             <Pagination total={total} per_page={filters.limit} currentPage={filters.page} onChange={page => setFilters(f => ({ ...f, page }))} />
           </>
         )}
-        {activeTab === "raw" && <RawData data={calendar} />}
+        {!syncing && activeTab === "raw" && <RawData data={calendar} />}
       </div>
     </div>
   )

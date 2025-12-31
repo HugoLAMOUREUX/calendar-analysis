@@ -137,14 +137,4 @@ router.post("/analysis", passport.authenticate("user", { session: false }), asyn
   }
 });
 
-router.post("/:id/sync", passport.authenticate("user", { session: false }), async (req, res) => {
-  try {
-    await syncCalendarEvents(req.user, req.params.id);
-    return res.status(200).send({ ok: true });
-  } catch (error) {
-    capture(error);
-    return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
-  }
-});
-
 module.exports = router;

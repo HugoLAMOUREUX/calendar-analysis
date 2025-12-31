@@ -4,7 +4,7 @@ const router = express.Router();
 const CalendarModel = require("../models/calendar");
 const ERROR_CODES = require("../utils/errorCodes");
 const { capture } = require("../services/sentry");
-const { syncCalendars } = require("../services/google");
+const { syncCalendars, syncCalendarEvents } = require("../services/google");
 
 router.get("/", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
@@ -52,6 +52,16 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 router.post("/sync", passport.authenticate("user", { session: false }), async (req, res) => {
   try {
     syncCalendars(req.user).catch((error) => capture(error));
+    return res.status(200).send({ ok: true });
+  } catch (error) {
+    capture(error);
+    return res.status(500).send({ ok: false, code: ERROR_CODES.SERVER_ERROR });
+  }
+});
+
+router.post("/:id/sync", passport.authenticate("user", { session: false }), async (req, res) => {
+  try {
+    await syncCalendarEvents(req.user, req.params.id);
     return res.status(200).send({ ok: true });
   } catch (error) {
     capture(error);
