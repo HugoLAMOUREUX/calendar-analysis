@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-4de12d5c.js"(exports, module) {
+  "assets/index-631259d8.js"(exports, module) {
     function _mergeNamespaces(n2, m2) {
       for (var i2 = 0; i2 < m2.length; i2++) {
         const e2 = m2[i2];
@@ -16088,7 +16088,12 @@ Url: ${_getEventFilterUrl(event)}`
             /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-6 h-6 bg-slate-900 rounded flex items-center justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx(HiOutlineCalendar, { className: "text-white w-4 h-4" }) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "font-bold text-slate-900", children: "Calendar Wrapped" })
           ] }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 text-center", children: "© 2026 — Fait avec passion pour les données." })
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-wrap justify-center gap-6 mb-8 text-sm font-medium text-slate-500", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => navigate("/terms"), className: "hover:text-indigo-600 transition-colors", children: "Conditions Générales d'Utilisation" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => navigate("/privacy"), className: "hover:text-indigo-600 transition-colors", children: "Politique de Confidentialité" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("button", { onClick: () => navigate("/legal-notice"), className: "hover:text-indigo-600 transition-colors", children: "Mentions Légales" })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-400 text-center text-xs lg:text-sm", children: "© 2026 — Fait avec passion pour les données." })
         ] }) })
       ] });
     }
@@ -25246,7 +25251,10 @@ Check your own stats!`;
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "11. Contact Information" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "If you have any questions about these Terms, please contact us through the application's support channels." })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+                "If you have any questions about these Terms, please contact us at: ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "hugo.lamoureux18@gmail.com" })
+              ] })
             ] })
           ] })
         ] })
@@ -25268,49 +25276,52 @@ Check your own stats!`;
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "prose prose-indigo max-w-none space-y-6 text-gray-700", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "1. Information We Collect" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "We collect information that you provide directly to us, including:" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "We collect information that you provide directly to us through Google OAuth and your interactions with our service:" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "list-disc list-inside ml-4 space-y-2 mt-4", children: [
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Account Information:" }),
-                  " When you create an account, we collect your name, email address, and password"
+                  " Your name, email address, and profile picture provided by Google during sign-in."
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Profile Information:" }),
-                  " You may optionally provide additional information such as a profile picture"
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Google Calendar Data:" }),
+                  " We synchronize your calendar metadata (titles, timezones) and event details (summaries, descriptions, durations, locations, attendees)."
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "OAuth Tokens:" }),
+                  " We securely store Google Access and Refresh tokens to maintain your calendar synchronization."
                 ] }),
                 /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
                   /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Usage Information:" }),
-                  " We automatically collect information about your interactions with our service"
-                ] }),
-                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
-                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Device Information:" }),
-                  " We collect information about the device you use to access our service"
+                  " Technical data about your device and how you interact with our service for performance and security monitoring."
                 ] })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "2. How We Use Your Information" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "We use the information we collect to:" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "We use the information we collect strictly to:" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "list-disc list-inside ml-4 space-y-2 mt-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Provide, maintain, and improve our services" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Create and manage your account" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Send you technical notices and support messages" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Respond to your comments and questions" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Monitor and analyze trends, usage, and activities" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Detect, investigate, and prevent security incidents" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Comply with legal obligations" })
+                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: 'Provide the "Calendar Wrapped" analysis and dashboard.' }),
+                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Calculate personal statistics (e.g., total meeting time, frequent collaborators)." })
               ] })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "3. Data Storage and Security" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "We use MongoDB Atlas, a secure cloud database service, to store your data. MongoDB Atlas provides enterprise-grade security features including:" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "Your data is stored securely using industry-standard services:" }),
               /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "list-disc list-inside ml-4 space-y-2 mt-4", children: [
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Encryption at rest and in transit" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Network isolation and VPC peering" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Role-based access controls" }),
-                /* @__PURE__ */ jsxRuntimeExports.jsx("li", { children: "Regular security audits and compliance certifications" })
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "MongoDB Atlas:" }),
+                  " Our main database, providing encryption at rest and in transit."
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Render:" }),
+                  " Hosts our API with secure connections."
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Sentry:" }),
+                  " For real-time error tracking and performance monitoring."
+                ] })
               ] }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4", children: "While we implement reasonable security measures to protect your information, no security system is impenetrable, and we cannot guarantee the absolute security of our database." })
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "mt-4", children: "While we implement reasonable security measures, no system is impenetrable, and we cannot guarantee absolute security." })
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "4. Information Sharing" }),
@@ -25383,7 +25394,76 @@ Check your own stats!`;
             ] }),
             /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "12. Contact Us" }),
-              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "If you have any questions about this Privacy Policy, please contact us through the application's support channels." })
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+                "If you have any questions about this Privacy Policy, please contact us at: ",
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "hugo.lamoureux18@gmail.com" })
+              ] })
+            ] })
+          ] })
+        ] })
+      ] }) });
+    }
+    function LegalNotice() {
+      const navigate = useNavigate();
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-4xl mx-auto", children: [
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("button", { onClick: () => navigate(-1), className: "inline-flex items-center gap-2 text-indigo-600 hover:text-indigo-700 font-medium mb-8 transition-colors", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx(HiArrowLeft, { className: "h-5 w-5" }),
+          "Back"
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-lg shadow-sm border border-gray-200 p-8 lg:p-12", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-4xl font-bold text-gray-900 mb-4", children: "Legal Notice" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-gray-600 mb-8", children: "Mentions Légales" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "prose prose-indigo max-w-none space-y-6 text-gray-700", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "1. Edition of the site" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "This site is edited by:" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "list-disc list-inside ml-4 space-y-2 mt-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Owner:" }),
+                  " LAMOUREUX HUGO"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Legal Form:" }),
+                  " Entrepreneur individuel (Micro-entreprise)"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Address:" }),
+                  " 1 RUE GUISEPPE TERSIGNI, 69780 MIONS"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "SIRET:" }),
+                  " 980 320 865 00010"
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "2. Publication Director" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Name:" }),
+                " LAMOUREUX HUGO"
+              ] }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "Contact:" }),
+                " hugo.lamoureux18@gmail.com"
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "3. Hosting" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "This site and its API are hosted by:" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("ul", { className: "list-disc list-inside ml-4 space-y-2 mt-4", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "App (Frontend):" }),
+                  " GitHub Pages - GitHub Inc. (88 Colin P Kelly Jr St, San Francisco, CA 94107, USA)"
+                ] }),
+                /* @__PURE__ */ jsxRuntimeExports.jsxs("li", { children: [
+                  /* @__PURE__ */ jsxRuntimeExports.jsx("strong", { children: "API (Backend):" }),
+                  " Render - Render Services, Inc. (524 4th St, San Francisco, CA 94107, USA)"
+                ] })
+              ] })
+            ] }),
+            /* @__PURE__ */ jsxRuntimeExports.jsxs("section", { children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx("h2", { className: "text-2xl font-semibold text-gray-900 mt-8 mb-4", children: "4. Intellectual Property" }),
+              /* @__PURE__ */ jsxRuntimeExports.jsx("p", { children: "All content on this site (text, graphics, logos, icons, images, audio, video) is the property of the site owner or its content suppliers and protected by international copyright laws." })
             ] })
           ] })
         ] })
@@ -26446,7 +26526,8 @@ Check your own stats!`;
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Route, { element: /* @__PURE__ */ jsxRuntimeExports.jsx(PublicLayout, {}), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Landing, {}) }),
             /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/terms", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Terms, {}) }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/privacy", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Privacy, {}) })
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/privacy", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Privacy, {}) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/legal-notice", element: /* @__PURE__ */ jsxRuntimeExports.jsx(LegalNotice, {}) })
           ] }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Route, { element: /* @__PURE__ */ jsxRuntimeExports.jsx(UserLayout, {}), children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx(Route, { path: "/calendars/*", element: /* @__PURE__ */ jsxRuntimeExports.jsx(Calendar, {}) }),
