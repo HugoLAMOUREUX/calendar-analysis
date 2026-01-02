@@ -7,13 +7,16 @@
       var pathSegmentsToKeep = 1;
 
       var l = window.location;
-      l.replace(
-        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+      var redirectUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
         l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
         l.pathname.split('/').slice(1 + pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
         (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
-        l.hash
-      );
+        l.hash;
+
+      console.log("404 Redirecting from:", l.href);
+      console.log("404 Redirecting to:", redirectUrl);
+
+      l.replace(redirectUrl);
     </script>
   </head>
   <body>

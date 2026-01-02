@@ -8,19 +8,31 @@
   <title>Calendar analysis</title>
   <script type="text/javascript">
     (function(l) {
+      console.log("Index.html check - current URL:", l.href);
       if (l.search[1] === '/' ) {
         var decoded = l.search.slice(1).split('&').map(function(s) { 
           return s.replace(/~and~/g, '&')
         }).join('?');
-        // On s'assure de ne pas doubler les slashes et de garder le sous-répertoire
-        var newPath = l.pathname.replace(/\/$/, '') + decoded + l.hash;
-        window.history.replaceState(null, null, newPath);
+        
+        var base = l.pathname.slice(0, l.pathname.lastIndexOf('/'));
+        var newPath = base + decoded + l.hash;
+        
+        console.log("Index.html - detected redirect search:", l.search);
+        console.log("Index.html - decoded path:", decoded);
+        console.log("Index.html - calculated newPath:", newPath);
+
+        if (newPath !== l.href) {
+          window.history.replaceState(null, null, newPath);
+          console.log("Index.html - history replaced to:", newPath);
+        }
+      } else {
+        console.log("Index.html - no redirect detected in search");
       }
     }(window.location))
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js" async defer></script>
-  <script type="module" crossorigin src="/calendar-analysis/assets/index-57465e33.js"></script>
+  <script type="module" crossorigin src="/calendar-analysis/assets/index-9fc27de8.js"></script>
   <link rel="stylesheet" href="/calendar-analysis/assets/index-fff0bb98.css">
 </head>
 
