@@ -12,9 +12,9 @@
         var decoded = l.search.slice(1).split('&').map(function(s) { 
           return s.replace(/~and~/g, '&')
         }).join('?');
-        window.history.replaceState(null, null,
-            l.pathname.replace(/\/$/, '') + decoded + l.hash
-        );
+        // On s'assure de ne pas doubler les slashes et de garder le sous-répertoire
+        var newPath = l.pathname.replace(/\/$/, '') + decoded + l.hash;
+        window.history.replaceState(null, null, newPath);
       }
     }(window.location))
   </script>

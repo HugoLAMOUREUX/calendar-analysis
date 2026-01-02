@@ -26,7 +26,7 @@ if (environment === "production") {
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <BrowserRouter basename="/calendar-analysis">
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
