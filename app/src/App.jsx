@@ -27,7 +27,7 @@ if (environment === "production") {
 
 export default function App() {
   return (
-    <BrowserRouter basename="/calendar-analysis/">
+    <BrowserRouter basename="/calendar-analysis/" future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />

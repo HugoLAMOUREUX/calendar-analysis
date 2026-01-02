@@ -22,7 +22,7 @@ if (ENVIRONMENT === "production" && SENTRY_URL) Sentry.init({ dsn: SENTRY_URL, e
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
       <Routes>
         <Route element={<AuthLayout />}>
