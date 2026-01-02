@@ -4,7 +4,10 @@ import { apiURL } from "../config"
 let socket
 
 export const initSocket = userId => {
-  if (socket) return socket
+  if (socket) {
+    if (userId) socket.emit("join", userId)
+    return socket
+  }
 
   socket = io(apiURL, {
     withCredentials: true

@@ -1,19 +1,16 @@
 import React, { useState } from "react"
 import toast from "react-hot-toast"
-import { useNavigate } from "react-router-dom"
 import { FcGoogle } from "react-icons/fc"
-
 import api from "@/services/api"
 import useStore from "@/services/store"
 
-export default function Signin() {
+export default function GoogleButton({ buttonText = "Continue with Google", onSuccess = () => {}, className = "" }) {
   const [loading, setLoading] = useState(false)
   const { setUser } = useStore()
-  const navigate = useNavigate()
 
   const handleGoogleLogin = async () => {
     if (!window.google) {
-      return toast.error("Google script not loaded yet")
+      return toast.error("Le script Google n'est pas encore chargé")
     }
 
     setLoading(true)
@@ -21,7 +18,7 @@ export default function Signin() {
     try {
       // 1. Get Client ID from API
       const { ok: okConfig, data: clientId } = await api.get("/user/google-client-id")
-      if (!okConfig) throw new Error("Could not fetch Google configuration")
+      if (!okConfig) throw new Error("Impossible de récupérer la configuration Google")
 
       // 2. Initialize Google Code Client
       const client = window.google.accounts.oauth2.initCodeClient({
@@ -33,7 +30,7 @@ export default function Signin() {
         callback: async response => {
           if (response.error) {
             setLoading(false)
-            return toast.error("Error with Google login")
+            return toast.error("Erreur lors de la connexion Google")
           }
 
           try {
@@ -44,16 +41,19 @@ export default function Signin() {
 
             if (!ok) {
               setLoading(false)
-              return toast.error("Failed to login with Google")
+              return toast.error("Échec de la connexion avec Google")
             }
 
             if (token) api.setToken(token)
-            if (user) setUser(user)
+            if (user) {
+              setUser(user)
+              onSuccess(user)
+            }
 
-            toast.success("Successfully signed in with Google!")
+            toast.success("Connexion réussie avec Google !")
           } catch (e) {
             console.error(e)
-            toast.error("An error occurred during Google login")
+            toast.error("Une erreur est survenue lors de la connexion Google")
             setLoading(false)
           }
         }
@@ -62,32 +62,21 @@ export default function Signin() {
       client.requestCode()
     } catch (e) {
       console.error(e)
-      toast.error(e.message || "An error occurred")
+      toast.error(e.message || "Une erreur est survenue")
       setLoading(false)
     }
   }
 
   return (
-    <div className="w-full max-w-md mx-auto p-4">
-      <div className="bg-white rounded-2xl border border-indigo-100 shadow-xl p-6">
-        <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">Sign in</h1>
-        <p className="text-center text-gray-600 mb-6">Continue to your calendar analysis</p>
-
-        <button
-          onClick={handleGoogleLogin}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 transition-all shadow-sm font-medium text-gray-700"
-        >
-          {loading ? (
-            <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <>
-              <FcGoogle size={20} />
-              <span>Continue with Google</span>
-            </>
-          )}
-        </button>
-      </div>
-    </div>
+    <button onClick={handleGoogleLogin} disabled={loading} className={`flex items-center justify-center gap-3 transition-all active:scale-95 disabled:opacity-70 ${className}`}>
+      {loading ? (
+        <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+      ) : (
+        <>
+          <FcGoogle size={20} />
+          <span>{buttonText}</span>
+        </>
+      )}
+    </button>
   )
 }

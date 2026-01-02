@@ -3,12 +3,12 @@ import { BrowserRouter, Navigate, Outlet, Route, Routes, useLocation } from "rea
 import { Toaster } from "react-hot-toast"
 import * as Sentry from "@sentry/browser"
 
-import Auth from "@/scenes/auth"
+import Landing from "@/scenes/landing"
 import Calendar from "@/scenes/calendar"
-import Syncing from "@/scenes/calendar/syncing"
 import Event from "@/scenes/event"
 import Account from "@/scenes/account"
 import Wrapped from "@/scenes/wrapped"
+import Syncing from "@/scenes/syncing"
 import Terms from "@/scenes/legal-pages/terms"
 import Privacy from "@/scenes/legal-pages/privacy"
 
@@ -29,20 +29,18 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route element={<PublicLayout />}>
+          <Route path="/" element={<Landing />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
         </Route>
-        <Route element={<AuthLayout />}>
-          <Route path="/auth/*" element={<Auth />} />
-        </Route>
         <Route element={<UserLayout />}>
           <Route path="/calendars/*" element={<Calendar />} />
-          <Route path="/syncing" element={<Syncing />} />
-          <Route path="/events/*" element={<Event />} />
+          <Route path="/syncing/*" element={<Syncing />} />
           <Route path="/wrapped/*" element={<Wrapped />} />
+          <Route path="/events/*" element={<Event />} />
           <Route path="/account" element={<Account />} />
         </Route>
-        <Route path="*" element={<Navigate to="/calendars" />} />
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Toaster position="top-center" />
     </BrowserRouter>
@@ -51,17 +49,6 @@ export default function App() {
 
 const PublicLayout = () => {
   return <Outlet />
-}
-
-const AuthLayout = () => {
-  const { user } = useStore()
-  if (user) return <Navigate to="/" replace={true} />
-  return (
-    <div className="flex flex-col justify-center items-center gap-8 w-screen h-screen">
-      <h1 className="text-3xl font-bold">Calendar analysis</h1>
-      <Outlet />
-    </div>
-  )
 }
 
 const UserLayout = () => {
@@ -92,17 +79,19 @@ const UserLayout = () => {
 
   if (loading) return <Loader />
 
-  if (!user) return <Navigate to="/auth" replace={true} />
+  if (!user) return <Navigate to="/" replace={true} />
 
   // If user is logged in but never synced, redirect to syncing page
-  if (!user.last_calendar_sync_at && location.pathname !== "/syncing") {
-    return <Navigate to="/syncing" replace={true} />
+  if (!user.last_calendar_sync_at && !location.pathname.startsWith("/syncing")) {
+    return <Navigate to="/syncing/wrapped" replace={true} />
   }
+
+  const showNavbar = !location.pathname.startsWith("/syncing")
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Navbar />
-      <main className={`flex-1 h-full overflow-auto bg-gray-50 transition-all duration-300 ${isNavCollapsed ? "lg:ml-20" : "lg:ml-64"}`}>
+      {showNavbar && <Navbar />}
+      <main className={`flex-1 h-full overflow-auto bg-gray-50 transition-all duration-300 ${showNavbar ? (isNavCollapsed ? "lg:ml-20" : "lg:ml-64") : ""}`}>
         <Outlet />
       </main>
     </div>

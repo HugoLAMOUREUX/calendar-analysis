@@ -3,6 +3,7 @@ const CalendarModel = require("../models/calendar");
 const EventModel = require("../models/event");
 const config = require("../config");
 const { emitToUser } = require("./socket");
+const { createWrapped } = require("../utils/createWrapped");
 
 function getOAuth2Client(user) {
   const oauth2Client = new google.auth.OAuth2(config.GOOGLE_OAUTH_CLIENT_ID, config.GOOGLE_OAUTH_CLIENT_SECRET);
@@ -94,6 +95,89 @@ async function syncCalendars(user) {
         i++;
       } catch (e) {
         console.error(`Failed to sync events for calendar ${cal.summary} during initial sync:`, e.message);
+      }
+    }
+  }
+
+  // Update user last sync
+  user.last_calendar_sync_at = new Date();
+  await user.save();
+
+  emitToUser(user._id.toString(), "sync_progress", { status: "completed", message: "Synchronization complete!" });
+}
+
+async function syncWrappedCalendarAndGenerateWrapped(user) {
+  if (!user.google_access_token) return;
+
+  emitToUser(user._id.toString(), "sync_progress", {
+    status: "fetching_calendars",
+    message: "Fetching your calendars...",
+  });
+
+  const oauth2Client = getOAuth2Client(user);
+  const calendarApi = google.calendar({ version: "v3", auth: oauth2Client });
+  const { data } = await calendarApi.calendarList.list();
+
+  let wrappedCalendar = null;
+
+  if (data.items && data.items.length > 0) {
+    emitToUser(user._id.toString(), "sync_progress", {
+      status: "processing_calendars",
+      message: `Identifying wrapped calendar...`,
+    });
+
+    for (const item of data.items) {
+      const calendarData = {
+        user_id: user._id.toString(),
+        user_name: user.name,
+        user_avatar: user.avatar,
+        google_id: item.id,
+        etag: item.etag,
+        summary: item.summary,
+        description: item.description,
+        timeZone: item.timeZone,
+        accessRole: item.accessRole,
+        backgroundColor: item.backgroundColor,
+        foregroundColor: item.foregroundColor,
+        colorId: item.colorId,
+        kind: item.kind,
+        conferenceProperties: item.conferenceProperties,
+        defaultReminders: item.defaultReminders,
+        last_synced_at: new Date(),
+      };
+
+      const cal = await CalendarModel.findOneAndUpdate(
+        { user_id: user._id.toString(), google_id: item.id },
+        calendarData,
+        {
+          upsert: true,
+          new: true,
+        },
+      );
+
+      if (item.summary === user.email) {
+        wrappedCalendar = cal;
+      }
+    }
+
+    if (wrappedCalendar) {
+      emitToUser(user._id.toString(), "sync_progress", {
+        status: "syncing_events",
+        message: `Syncing events for your wrapped calendar: ${wrappedCalendar.summary}`,
+        current: 1,
+        total: 1,
+      });
+      await syncCalendarEvents(user, wrappedCalendar._id);
+
+      // Generate Wrapped automatically after sync
+      try {
+        emitToUser(user._id.toString(), "sync_progress", {
+          status: "generating_wrapped",
+          message: "Generating your 2025 Wrapped...",
+        });
+        await createWrapped(user, 2025, wrappedCalendar._id);
+      } catch (e) {
+        console.error("Failed to auto-generate wrapped after sync:", e.message);
       }
     }
   }
@@ -216,10 +300,12 @@ async function syncCalendarEvents(user, calendarId) {
 
   // Update calendar last sync
   cal.last_synced_at = new Date();
+  cal.last_event_synced_at = new Date();
   await cal.save();
 }
 
 module.exports = {
   syncCalendars,
   syncCalendarEvents,
+  syncWrappedCalendarAndGenerateWrapped,
 };

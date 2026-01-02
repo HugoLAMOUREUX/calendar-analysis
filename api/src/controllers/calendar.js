@@ -40,7 +40,10 @@ router.post("/search", passport.authenticate("user", { session: false }), async 
 
     const offset = (page - 1) * limit;
     const total = await CalendarModel.countDocuments(query);
-    const data = await CalendarModel.find(query).sort({ created_at: -1 }).skip(offset).limit(limit);
+    const data = await CalendarModel.find(query)
+      .sort({ last_event_synced_at: -1, created_at: -1 })
+      .skip(offset)
+      .limit(limit);
 
     return res.status(200).send({ ok: true, data, total });
   } catch (error) {

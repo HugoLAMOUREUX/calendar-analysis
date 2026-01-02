@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { HiCalendar, HiArrowLeft, HiArrowPath } from "react-icons/hi2"
+import { HiCalendar, HiArrowLeft, HiArrowPath, HiCheckCircle, HiXCircle } from "react-icons/hi2"
 import toast from "react-hot-toast"
 
 import api from "@/services/api"
@@ -137,7 +137,21 @@ export default function View() {
             <HiCalendar size={24} />
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{calendar?.summary || "Calendar Events"}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-3xl font-bold text-gray-900">{calendar?.summary || "Calendar Events"}</h1>
+              {calendar && !calendar.last_event_synced_at && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-red-100 text-red-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                  <HiXCircle className="w-3 h-3" />
+                  Not Synced
+                </span>
+              )}
+              {calendar?.last_event_synced_at && (
+                <span className="flex items-center gap-1 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                  <HiCheckCircle className="w-3 h-3" />
+                  Synced
+                </span>
+              )}
+            </div>
             <p className="text-gray-600">{calendar?.description || "Events from the selected calendar"}</p>
           </div>
         </div>

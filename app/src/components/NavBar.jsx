@@ -33,7 +33,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     setUser(null)
     api.removeToken()
-    navigate("/auth")
+    navigate("/")
   }
 
   return (

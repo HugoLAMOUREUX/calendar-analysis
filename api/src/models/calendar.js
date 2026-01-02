@@ -29,6 +29,7 @@ const Schema = new mongoose.Schema(
       },
     ],
     last_synced_at: { type: Date },
+    last_event_synced_at: { type: Date },
   },
   { timestamps: { createdAt: "created_at", updatedAt: "updated_at" } },
 );
