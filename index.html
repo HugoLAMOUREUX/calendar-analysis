@@ -13,14 +13,14 @@
           return s.replace(/~and~/g, '&')
         }).join('?');
         window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
+            l.pathname.replace(/\/$/, '') + decoded + l.hash
         );
       }
     }(window.location))
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js" async defer></script>
-  <script type="module" crossorigin src="/calendar-analysis/assets/index-3e6bead6.js"></script>
+  <script type="module" crossorigin src="/calendar-analysis/assets/index-4de12d5c.js"></script>
   <link rel="stylesheet" href="/calendar-analysis/assets/index-fff0bb98.css">
 </head>
 
