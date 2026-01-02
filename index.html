@@ -12,15 +12,15 @@
         var decoded = l.search.slice(1).split('&').map(function(s) { 
           return s.replace(/~and~/g, '&')
         }).join('?');
-        window.history.replaceState(null, null,
-            l.pathname.replace(/\/$/, '') + decoded + l.hash
-        );
+        // On s'assure de ne pas doubler les slashes et de garder le sous-répertoire
+        var newPath = l.pathname.replace(/\/$/, '') + decoded + l.hash;
+        window.history.replaceState(null, null, newPath);
       }
     }(window.location))
   </script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://apis.google.com/js/api.js" async defer></script>
-  <script type="module" crossorigin src="/calendar-analysis/assets/index-4de12d5c.js"></script>
+  <script type="module" crossorigin src="/calendar-analysis/assets/index-57465e33.js"></script>
   <link rel="stylesheet" href="/calendar-analysis/assets/index-fff0bb98.css">
 </head>
 
