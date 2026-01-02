@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-7fb573a9.js"(exports, module) {
+  "assets/index-3e6bead6.js"(exports, module) {
     function _mergeNamespaces(n2, m2) {
       for (var i2 = 0; i2 < m2.length; i2++) {
         const e2 = m2[i2];
@@ -24860,7 +24860,7 @@ Check your own stats!`;
       });
       return socket;
     };
-    const STEPS = [
+    const STEPS$1 = [
       { id: "connecting", label: "Connexion Google", status: ["initializing", "fetching_calendars"] },
       { id: "syncing", label: "Récupération des événements", status: ["processing_calendars", "syncing_events"] },
       { id: "analyzing", label: "Analyse statistique", status: ["generating_wrapped"] },
@@ -24926,8 +24926,8 @@ Check your own stats!`;
         }
       };
       const getStepStatus = (stepId) => {
-        const currentStepIndex = STEPS.findIndex((s2) => s2.status.includes(progress.status));
-        const stepIndex = STEPS.findIndex((s2) => s2.id === stepId);
+        const currentStepIndex = STEPS$1.findIndex((s2) => s2.status.includes(progress.status));
+        const stepIndex = STEPS$1.findIndex((s2) => s2.id === stepId);
         if (progress.status === "completed" || status === "completing")
           return "completed";
         if (currentStepIndex === -1)
@@ -24941,15 +24941,15 @@ Check your own stats!`;
       const getOverallPercentage = () => {
         if (status === "completing")
           return 100;
-        const stepIndex = STEPS.findIndex((s2) => s2.status.includes(progress.status));
+        const stepIndex = STEPS$1.findIndex((s2) => s2.status.includes(progress.status));
         if (stepIndex === -1)
           return 5;
-        const basePercentage = stepIndex / STEPS.length * 100;
+        const basePercentage = stepIndex / STEPS$1.length * 100;
         let stepProgress = 0;
         if (progress.status === "syncing_events" && progress.total > 0) {
-          stepProgress = progress.current / progress.total * (100 / STEPS.length);
+          stepProgress = progress.current / progress.total * (100 / STEPS$1.length);
         } else {
-          stepProgress = 1 / STEPS.length * 50;
+          stepProgress = 1 / STEPS$1.length * 50;
         }
         return Math.min(Math.round(basePercentage + stepProgress), 98);
       };
@@ -24967,7 +24967,7 @@ Check your own stats!`;
               style: { width: `${getOverallPercentage()}%` }
             }
           ) }),
-          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: STEPS.map((step) => {
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: STEPS$1.map((step) => {
             const stepStatus = getStepStatus(step.id);
             return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 group", children: [
               /* @__PURE__ */ jsxRuntimeExports.jsx(
@@ -25015,66 +25015,155 @@ Check your own stats!`;
         ] })
       ] }) });
     }
+    const STEPS = [
+      { id: "connecting", label: "Connexion Google", status: ["initializing", "fetching_calendars"] },
+      { id: "syncing", label: "Synchronisation des calendriers", status: ["processing_calendars"] },
+      { id: "events", label: "Récupération des événements", status: ["syncing_events"] },
+      { id: "finalizing", label: "Finalisation", status: ["completed", "completing"] }
+    ];
     function Syncing$1() {
       const { user, setUser } = store();
       const navigate = useNavigate();
-      const [progress, setProgress] = reactExports.useState({
-        status: "initializing",
-        message: "Initializing synchronization...",
-        current: 0,
-        total: 0
-      });
+      const [status, setStatus] = reactExports.useState("initializing");
+      const [progress, setProgress] = reactExports.useState({ status: "initializing", message: "Initialisation...", current: 0, total: 0 });
+      const [socketConnected, setSocketConnected] = reactExports.useState(false);
       reactExports.useEffect(() => {
         if (!(user == null ? void 0 : user._id))
           return;
         const socket2 = initSocket(user._id);
-        const startSync = async () => {
-          try {
-            await API.post("/calendar/sync");
-          } catch (e2) {
-            console.error("Failed to trigger sync:", e2);
-          }
+        const onConnect = () => {
+          setSocketConnected(true);
         };
-        startSync();
-        socket2.on("sync_progress", async (data) => {
+        if (socket2.connected) {
+          setSocketConnected(true);
+        }
+        socket2.on("connect", onConnect);
+        socket2.on("sync_progress", (data) => {
           setProgress(data);
           if (data.status === "completed") {
-            try {
-              const { ok: ok2, user: updatedUser } = await API.get("/user/signin_token");
-              if (ok2)
-                setUser(updatedUser);
-            } catch (e2) {
-              console.error("Failed to fetch updated user:", e2);
-            }
-            setTimeout(() => {
-              navigate("/calendars");
-            }, 1500);
+            handleSyncCompleted();
           }
         });
         return () => {
+          socket2.off("connect", onConnect);
           socket2.off("sync_progress");
         };
-      }, [user == null ? void 0 : user._id, navigate, setUser]);
-      const getPercentage = () => {
-        if (progress.status === "completed")
-          return 100;
-        if (!progress.total)
-          return 0;
-        return Math.round(progress.current / progress.total * 100);
+      }, [user == null ? void 0 : user._id]);
+      reactExports.useEffect(() => {
+        if (socketConnected && status === "initializing") {
+          startSync();
+        }
+      }, [socketConnected]);
+      const startSync = async () => {
+        try {
+          setStatus("syncing");
+          await API.post("/calendar/sync");
+        } catch (e2) {
+          console.error("Failed to trigger sync:", e2);
+          setStatus("error");
+        }
       };
-      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center p-6 text-center", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-md w-full", children: [
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mb-8 flex justify-center", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-3xl font-bold text-gray-900 mb-4", children: "Syncing your data" }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-lg text-gray-600 mb-10 h-16", children: progress.message }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-full bg-gray-100 rounded-full h-4 mb-6 overflow-hidden shadow-inner", children: /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "bg-indigo-600 h-full transition-all duration-500 ease-out shadow-[0_0_10px_rgba(79,70,229,0.5)]", style: { width: `${getPercentage()}%` } }) }),
-        /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
-          progress.status === "syncing_events" && progress.total > 0 && /* @__PURE__ */ jsxRuntimeExports.jsxs("span", { className: "text-sm font-medium text-gray-500 uppercase tracking-wider", children: [
-            "Calendar ",
-            progress.current,
-            " of ",
-            progress.total
+      const handleSyncCompleted = async () => {
+        try {
+          const { ok: ok2, user: updatedUser } = await API.get("/user/signin_token");
+          if (ok2)
+            setUser(updatedUser);
+          setStatus("completing");
+          setTimeout(() => {
+            navigate("/calendars");
+          }, 1e3);
+        } catch (e2) {
+          console.error("Error after sync:", e2);
+          setStatus("error");
+        }
+      };
+      const getStepStatus = (stepId) => {
+        const currentStepIndex = STEPS.findIndex((s2) => s2.status.includes(progress.status));
+        const stepIndex = STEPS.findIndex((s2) => s2.id === stepId);
+        if (progress.status === "completed" || status === "completing")
+          return "completed";
+        if (currentStepIndex === -1)
+          return stepIndex === 0 ? "current" : "pending";
+        if (stepIndex < currentStepIndex)
+          return "completed";
+        if (stepIndex === currentStepIndex)
+          return "current";
+        return "pending";
+      };
+      const getOverallPercentage = () => {
+        if (status === "completing")
+          return 100;
+        const stepIndex = STEPS.findIndex((s2) => s2.status.includes(progress.status));
+        if (stepIndex === -1)
+          return 5;
+        const basePercentage = stepIndex / STEPS.length * 100;
+        let stepProgress = 0;
+        if (progress.status === "syncing_events" && progress.total > 0) {
+          stepProgress = progress.current / progress.total * (100 / STEPS.length);
+        } else {
+          stepProgress = 1 / STEPS.length * 50;
+        }
+        return Math.min(Math.round(basePercentage + stepProgress), 98);
+      };
+      return /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "h-screen bg-slate-50 flex flex-col items-center justify-center p-4 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "max-w-xl w-full", children: [
+        status !== "error" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-[2.5rem] p-8 lg:p-10 shadow-2xl shadow-indigo-100/50 border border-slate-100 animate-fade-in", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "text-center mb-8", children: [
+            /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "inline-flex items-center justify-center w-16 h-16 bg-indigo-50 rounded-2xl mb-4 text-indigo-600", children: /* @__PURE__ */ jsxRuntimeExports.jsx(HiOutlineCalendar, { className: "w-8 h-8" }) }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-black text-slate-900 mb-2 tracking-tight", children: status === "completing" ? "C'est prêt !" : "Synchronisation en cours" }),
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-500 text-sm font-medium", children: "Mise à jour de vos données Google Calendar" })
           ] }),
-          progress.status === "completed" && /* @__PURE__ */ jsxRuntimeExports.jsx("span", { className: "text-green-600 font-bold animate-bounce text-xl", children: "Done! Redirecting..." })
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "relative h-2.5 bg-slate-100 rounded-full mb-10 overflow-hidden", children: /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "div",
+            {
+              className: "absolute top-0 left-0 h-full bg-indigo-600 transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(79,70,229,0.4)]",
+              style: { width: `${getOverallPercentage()}%` }
+            }
+          ) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "space-y-4", children: STEPS.map((step) => {
+            const stepStatus = getStepStatus(step.id);
+            return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex items-center gap-4 group", children: [
+              /* @__PURE__ */ jsxRuntimeExports.jsx(
+                "div",
+                {
+                  className: `
+                        flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-all duration-500
+                        ${stepStatus === "completed" ? "bg-emerald-500 text-white shadow-lg shadow-emerald-100" : ""}
+                        ${stepStatus === "current" ? "bg-indigo-600 text-white ring-4 ring-indigo-50 shadow-lg shadow-indigo-100" : ""}
+                        ${stepStatus === "pending" ? "bg-slate-50 text-slate-300 border border-slate-100" : ""}
+                      `,
+                  children: stepStatus === "completed" ? /* @__PURE__ */ jsxRuntimeExports.jsx(HiCheck, { className: "w-5 h-5" }) : stepStatus === "current" ? /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" }) : /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-1.5 h-1.5 rounded-full bg-current" })
+                }
+              ),
+              /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex-1", children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(
+                  "p",
+                  {
+                    className: `font-bold text-sm transition-colors duration-500 ${stepStatus === "pending" ? "text-slate-300" : "text-slate-700"} ${stepStatus === "current" ? "text-indigo-600" : ""}`,
+                    children: step.label
+                  }
+                ),
+                stepStatus === "current" && /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-xs text-slate-400 animate-pulse font-medium mt-0.5", children: progress.message || "En cours..." })
+              ] })
+            ] }, step.id);
+          }) })
+        ] }),
+        status === "error" && /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "bg-white rounded-[3rem] p-10 shadow-2xl border border-slate-100 text-center animate-fade-in", children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center mx-auto mb-6", children: /* @__PURE__ */ jsxRuntimeExports.jsx(HiOutlineExclamationCircle, { className: "w-10 h-10" }) }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "text-2xl font-black text-slate-900 mb-3 tracking-tight", children: "Oups !" }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-slate-500 mb-8 text-sm leading-relaxed", children: "Une erreur est survenue lors de la synchronisation." }),
+          /* @__PURE__ */ jsxRuntimeExports.jsx(
+            "button",
+            {
+              onClick: () => window.location.reload(),
+              className: "w-full bg-slate-900 text-white py-5 rounded-2xl font-black hover:bg-slate-800 transition-all shadow-xl shadow-slate-200",
+              children: "Réessayer"
+            }
+          )
+        ] }),
+        /* @__PURE__ */ jsxRuntimeExports.jsxs("p", { className: "mt-8 text-center text-slate-400 text-xs font-medium", children: [
+          "Vos données sont traitées en toute sécurité. ",
+          /* @__PURE__ */ jsxRuntimeExports.jsx("br", {}),
+          "Ce processus peut prendre quelques secondes."
         ] })
       ] }) });
     }
