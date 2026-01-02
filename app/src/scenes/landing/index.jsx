@@ -222,7 +222,18 @@ export default function Landing() {
             </div>
             <span className="font-bold text-slate-900">Calendar Wrapped</span>
           </div>
-          <p className="text-slate-400 text-center">© 2026 — Fait avec passion pour les données.</p>
+          <div className="flex flex-wrap justify-center gap-6 mb-8 text-sm font-medium text-slate-500">
+            <button onClick={() => navigate("/terms")} className="hover:text-indigo-600 transition-colors">
+              Conditions Générales d'Utilisation
+            </button>
+            <button onClick={() => navigate("/privacy")} className="hover:text-indigo-600 transition-colors">
+              Politique de Confidentialité
+            </button>
+            <button onClick={() => navigate("/legal-notice")} className="hover:text-indigo-600 transition-colors">
+              Mentions Légales
+            </button>
+          </div>
+          <p className="text-slate-400 text-center text-xs lg:text-sm">© 2026 — Fait avec passion pour les données.</p>
         </div>
       </footer>
     </div>

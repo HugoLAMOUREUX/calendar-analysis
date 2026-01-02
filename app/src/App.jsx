@@ -11,6 +11,7 @@ import Wrapped from "@/scenes/wrapped"
 import Syncing from "@/scenes/syncing"
 import Terms from "@/scenes/legal-pages/terms"
 import Privacy from "@/scenes/legal-pages/privacy"
+import LegalNotice from "@/scenes/legal-pages/legal-notice"
 
 import Navbar from "@/components/NavBar"
 import Loader from "@/components/loader"
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<Privacy />} />
+          <Route path="/legal-notice" element={<LegalNotice />} />
         </Route>
         <Route element={<UserLayout />}>
           <Route path="/calendars/*" element={<Calendar />} />

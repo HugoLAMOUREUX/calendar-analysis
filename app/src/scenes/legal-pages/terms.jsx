@@ -116,7 +116,9 @@ export default function Terms() {
 
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">11. Contact Information</h2>
-              <p>If you have any questions about these Terms, please contact us through the application's support channels.</p>
+              <p>
+                If you have any questions about these Terms, please contact us at: <strong>hugo.lamoureux18@gmail.com</strong>
+              </p>
             </section>
           </div>
         </div>

@@ -20,50 +20,48 @@ export default function Privacy() {
           <div className="prose prose-indigo max-w-none space-y-6 text-gray-700">
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. Information We Collect</h2>
-              <p>We collect information that you provide directly to us, including:</p>
+              <p>We collect information that you provide directly to us through Google OAuth and your interactions with our service:</p>
               <ul className="list-disc list-inside ml-4 space-y-2 mt-4">
                 <li>
-                  <strong>Account Information:</strong> When you create an account, we collect your name, email address, and password
+                  <strong>Account Information:</strong> Your name, email address, and profile picture provided by Google during sign-in.
                 </li>
                 <li>
-                  <strong>Profile Information:</strong> You may optionally provide additional information such as a profile picture
+                  <strong>Google Calendar Data:</strong> We synchronize your calendar metadata (titles, timezones) and event details (summaries, descriptions, durations, locations,
+                  attendees).
                 </li>
                 <li>
-                  <strong>Usage Information:</strong> We automatically collect information about your interactions with our service
+                  <strong>OAuth Tokens:</strong> We securely store Google Access and Refresh tokens to maintain your calendar synchronization.
                 </li>
                 <li>
-                  <strong>Device Information:</strong> We collect information about the device you use to access our service
+                  <strong>Usage Information:</strong> Technical data about your device and how you interact with our service for performance and security monitoring.
                 </li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">2. How We Use Your Information</h2>
-              <p>We use the information we collect to:</p>
+              <p>We use the information we collect strictly to:</p>
               <ul className="list-disc list-inside ml-4 space-y-2 mt-4">
-                <li>Provide, maintain, and improve our services</li>
-                <li>Create and manage your account</li>
-                <li>Send you technical notices and support messages</li>
-                <li>Respond to your comments and questions</li>
-                <li>Monitor and analyze trends, usage, and activities</li>
-                <li>Detect, investigate, and prevent security incidents</li>
-                <li>Comply with legal obligations</li>
+                <li>Provide the "Calendar Wrapped" analysis and dashboard.</li>
+                <li>Calculate personal statistics (e.g., total meeting time, frequent collaborators).</li>
               </ul>
             </section>
 
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">3. Data Storage and Security</h2>
-              <p>We use MongoDB Atlas, a secure cloud database service, to store your data. MongoDB Atlas provides enterprise-grade security features including:</p>
+              <p>Your data is stored securely using industry-standard services:</p>
               <ul className="list-disc list-inside ml-4 space-y-2 mt-4">
-                <li>Encryption at rest and in transit</li>
-                <li>Network isolation and VPC peering</li>
-                <li>Role-based access controls</li>
-                <li>Regular security audits and compliance certifications</li>
+                <li>
+                  <strong>MongoDB Atlas:</strong> Our main database, providing encryption at rest and in transit.
+                </li>
+                <li>
+                  <strong>Render:</strong> Hosts our API with secure connections.
+                </li>
+                <li>
+                  <strong>Sentry:</strong> For real-time error tracking and performance monitoring.
+                </li>
               </ul>
-              <p className="mt-4">
-                While we implement reasonable security measures to protect your information, no security system is impenetrable, and we cannot guarantee the absolute security of
-                our database.
-              </p>
+              <p className="mt-4">While we implement reasonable security measures, no system is impenetrable, and we cannot guarantee absolute security.</p>
             </section>
 
             <section>
@@ -155,7 +153,9 @@ export default function Privacy() {
 
             <section>
               <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">12. Contact Us</h2>
-              <p>If you have any questions about this Privacy Policy, please contact us through the application's support channels.</p>
+              <p>
+                If you have any questions about this Privacy Policy, please contact us at: <strong>hugo.lamoureux18@gmail.com</strong>
+              </p>
             </section>
           </div>
         </div>
