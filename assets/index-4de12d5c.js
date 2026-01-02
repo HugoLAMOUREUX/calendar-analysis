@@ -3,7 +3,7 @@ var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
 var require_index_001 = __commonJS({
-  "assets/index-9fc27de8.js"(exports, module) {
+  "assets/index-4de12d5c.js"(exports, module) {
     function _mergeNamespaces(n2, m2) {
       for (var i2 = 0; i2 < m2.length; i2++) {
         const e2 = m2[i2];
@@ -26441,8 +26441,6 @@ Check your own stats!`;
       init({ dsn: SENTRY_URL, environment: "app" });
     }
     function App() {
-      console.log("App starting - basename: /calendar-analysis/");
-      console.log("Current window.location:", window.location.href);
       return /* @__PURE__ */ jsxRuntimeExports.jsxs(BrowserRouter, { basename: "/calendar-analysis/", children: [
         /* @__PURE__ */ jsxRuntimeExports.jsxs(Routes, { children: [
           /* @__PURE__ */ jsxRuntimeExports.jsxs(Route, { element: /* @__PURE__ */ jsxRuntimeExports.jsx(PublicLayout, {}), children: [
