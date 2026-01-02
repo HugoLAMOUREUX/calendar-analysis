@@ -25,8 +25,6 @@ if (environment === "production") {
 }
 
 export default function App() {
-  console.log("App starting - basename: /calendar-analysis/")
-  console.log("Current window.location:", window.location.href)
   return (
     <BrowserRouter basename="/calendar-analysis/">
       <Routes>
