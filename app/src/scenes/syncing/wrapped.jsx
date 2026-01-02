@@ -73,7 +73,7 @@ export default function WrappedSyncing() {
       setStatus("completing")
       setTimeout(() => {
         navigate(`/wrapped/${wrappeds[0]._id}`)
-      }, 2000)
+      }, 1000)
     } catch (e) {
       console.error("Error after sync:", e)
       setStatus("error")

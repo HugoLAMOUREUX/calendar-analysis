@@ -26,7 +26,7 @@ if (environment === "production") {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route element={<PublicLayout />}>
           <Route path="/" element={<Landing />} />
